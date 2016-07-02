@@ -1,0 +1,36 @@
+{
+    "compilerOptions": {
+        "module": "commonjs",
+        "target": "es5",
+        "noImplicitAny": false,
+        "sourceMap": false
+    },
+    "filesGlob": [
+        "**/*.ts"
+    ],
+    "exclude": [
+        "node_modules"
+    ],
+    "compileOnSave": false,
+    "files": [
+        "client/index.ts",
+        "server/index.d.ts",
+        "server/index.ts",
+        "server/source/index.ts",
+        "server/source/source.ts",
+        "server/source/sourceOptions.ts",
+        "server/source/topics/hello.ts",
+        "server/source/topics/index.ts",
+        "server/source/topics/logger.ts",
+        "server/Things.ts",
+        "typings/globals/meteor/index.d.ts",
+        "typings/globals/mqtt/index.d.ts",
+        "typings/globals/node/index.d.ts",
+        "typings/globals/underscore/index.d.ts",
+        "typings/index.d.ts",
+        "typings/manual_typings/mqtt-emitter/index.d.ts"
+    ],
+    "atom": {
+        "rewriteTsconfig": true
+    }
+}
