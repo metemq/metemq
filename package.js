@@ -17,7 +17,7 @@ Npm.depends({
 
 Package.onUse(function(api) {
   api.versionsFrom('1.3.4.1');
-  api.use('underscore')
+  api.use('underscore@1.0.8')
   api.use('barbatus:typescript@0.3.3');
 
   api.mainModule('client/index.ts', 'client');
