@@ -32,6 +32,10 @@ export class Source {
         this.registerHandlers();
     }
 
+    send(topic: string, message: string) {
+        this.mqtt.publish(topic, message);
+    }
+
     private initialize() {
         this.mqtt.on('connect', Meteor.bindEnvironment(() => {
             console.log('MQTT connected!')
@@ -53,6 +57,6 @@ export class Source {
     // Add topic handler
     private addHandler(topicPattern, handler: topicHandler) {
         this.topic.on(topicPattern,
-            (payload, params) => handler(payload, params, this.mqtt))
+            (payload, params) => handler(payload, params, this))
     }
 }

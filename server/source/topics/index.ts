@@ -3,6 +3,7 @@ import * as mqtt from 'mqtt';
 import hello from './hello';
 import logger from './logger';
 import subscriptionMsg from './subscriptionMsg';
+import { Source } from '../source';
 import { Things } from '../../Things';
 import { SERVER_ID } from '../../config';
 
@@ -11,7 +12,7 @@ import { SERVER_ID } from '../../config';
 // And perform proper tasks with client object
 // Send response to things via client obj,
 // or insert some documents into DB, etc.
-export type topicHandler = (payload, params?, client?: mqtt.Client) => void;
+export type topicHandler = (payload, params?, source?: Source) => void;
 
 // Add topic handlers what you want!
 const topicHandlers: { [topic: string]: topicHandler } = {
