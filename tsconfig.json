@@ -14,6 +14,7 @@
     "compileOnSave": false,
     "files": [
         "client/index.ts",
+        "server/config.ts",
         "server/index.d.ts",
         "server/index.ts",
         "server/source/index.ts",
@@ -22,6 +23,7 @@
         "server/source/topics/hello.ts",
         "server/source/topics/index.ts",
         "server/source/topics/logger.ts",
+        "server/source/topics/subscriptionMsg.ts",
         "server/Things.ts",
         "typings/globals/meteor/index.d.ts",
         "typings/globals/mqtt/index.d.ts",
