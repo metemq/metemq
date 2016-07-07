@@ -15,14 +15,9 @@ import { SERVER_ID } from '../../config';
 export type topicHandler = (payload, params?, source?: Source) => void;
 
 // Add topic handlers what you want!
-const topicHandlers: { [topic: string]: topicHandler } = {
+export const topicHandlers: { [topic: string]: topicHandler } = {
     // Say hello to things...
     '+thingId/Hello': hello,
     // Just another example. Insert every messages into collection.
     '#topics': logger
-}
-
-// Server get a sub message
-topicHandlers[`${SERVER_ID}/auth/sub`] = subscriptionMsg;
-
-export { topicHandlers };
+};
