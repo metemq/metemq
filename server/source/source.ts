@@ -14,6 +14,9 @@ import {
 export class Source {
     private mqtt: mqtt.Client;
     private topic = new MqttEmitter();
+    // Object that stores publish handlers.
+    // Key is publish name, and value is its handler
+    publishHandlers: { [name: string]: Function } = {};
 
     constructor(brokerUrl: string, options?: SourceOptions) {
         // Overide default options with user defined options
@@ -30,6 +33,13 @@ export class Source {
         this.initialize();
 
         this.registerHandlers();
+    }
+
+    publish(name, handler, options?) {
+        if (_.has(this.publishHandlers, name))
+            throw new Error('Duplicated publishes');
+
+        this.publishHandlers[name] = handler;
     }
 
     send(topic: string, message: string) {

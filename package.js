@@ -25,10 +25,9 @@ Package.onUse(function(api) {
 });
 
 Package.onTest(function(api) {
-  // api.use('barbatus:typescript@0.3.3');
-  api.use('ecmascript');
-  api.use('tinytest');
   api.use('metemq:metemq');
+
+  api.use(['ecmascript', 'practicalmeteor:mocha', 'practicalmeteor:chai']);
 
   api.mainModule('test/index.js');
 });
