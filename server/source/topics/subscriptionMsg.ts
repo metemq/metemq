@@ -13,7 +13,7 @@ export default function subscriptionMsg(payload, params, source: Source) {
     let name: string = params.name;
 
     // Check unknown publish name
-    if (_.has(source.publishHandlers, name)) {
+    if (!_.has(source.publishHandlers, name)) {
         // Send $suback message with NO_SUCH_PUBLICATION_NAME error code
         source.send(`${thingId}/$suback/${name}`, NO_SUCH_PUBLICATION_NAME);
         return;

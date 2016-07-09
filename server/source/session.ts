@@ -9,7 +9,7 @@ import { Subscription } from './subscription';
 export class Session {
     // Subscriptions that thing is subscribing
     // Key is name of publication, and value is subscription object
-    subscriptions: { [name: string]: Subscription };
+    subscriptions: { [name: string]: Subscription } = {};
 
     constructor(
         private thingId: string,

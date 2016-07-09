@@ -12,7 +12,9 @@ Package.describe({
 
 Npm.depends({
   'mqtt': '1.11.2',
-  'mqtt-emitter': '1.2.4'
+  'mqtt-emitter': '1.2.4',
+  'mosca': '1.4.1',    // For testing. Mosca v2 does not support node v0.10
+  'portfinder': '1.0.3'
 });
 
 Package.onUse(function(api) {
