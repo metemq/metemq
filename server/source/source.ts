@@ -10,6 +10,7 @@ import {
     DEFAULT_SOURCE_OPTIONS,
     SourceOptions
 } from './sourceOptions';
+import { Session } from './session';
 
 export class Source {
     private mqtt: mqtt.Client;
@@ -17,6 +18,9 @@ export class Source {
     // Object that stores publish handlers.
     // Key is publish name, and value is its handler
     publishHandlers: { [name: string]: Function } = {};
+    // Object that stores sessions of things
+    // Key is thingId, and value is its session object
+    sessions: { [thingId: string]: Session } = {};
 
     constructor(brokerUrl: string, options?: SourceOptions) {
         // Overide default options with user defined options
@@ -42,8 +46,29 @@ export class Source {
         this.publishHandlers[name] = handler;
     }
 
-    send(topic: string, message: string) {
+    send(topic: string, message: number)
+    send(topic: string, message: string)
+    send(topic: string, message?: any) {
+        if (typeof message === 'number')
+            message = message.toString();
+        if (typeof message === 'object')
+            message = JSON.stringify(message);
+        if (typeof message === 'undefined')
+            message = '';
+
         this.mqtt.publish(topic, message);
+    }
+
+    getSession(thingId: string): Session {
+        // Return existing session if it exists
+        if (_.has(this.sessions, thingId))
+            return this.sessions[thingId];
+        // There is no session exists. Create new session
+        let newSession = new Session(thingId, this);
+        // Register session
+        this.sessions[thingId] = newSession;
+
+        return newSession;
     }
 
     private initialize() {

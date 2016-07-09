@@ -1,12 +1,13 @@
+import { assert } from 'meteor/practicalmeteor:chai';
 import { Source } from 'meteor/metemq:metemq';
 import { Mongo } from 'meteor/mongo';
 
 const Things = new Mongo.Collection('Things');
 
-describe('Source', function() {
+describe('class Source', function() {
   let source = new Source('mqtt://localhost');
 
-  describe('#publish()', function() {
+  describe('#publish(name, handler, options?)', function() {
 		let handler = function() {
 			return Things.find()
 		}

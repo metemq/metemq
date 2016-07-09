@@ -27,7 +27,9 @@ Package.onUse(function(api) {
 Package.onTest(function(api) {
   api.use('metemq:metemq');
 
-  api.use(['ecmascript', 'practicalmeteor:mocha', 'practicalmeteor:chai']);
+  api.use('barbatus:typescript@0.3.3');
 
-  api.mainModule('test/index.js');
+  api.use(['practicalmeteor:mocha', 'practicalmeteor:chai']);
+
+  api.mainModule('test/index.ts');
 });
