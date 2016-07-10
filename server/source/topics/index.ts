@@ -19,5 +19,6 @@ export const topicHandlers: { [topic: string]: topicHandler } = {
     // Say hello to things...
     '+thingId/Hello': hello,
     // Just another example. Insert every messages into collection.
-    '#topics': logger
+    // '#topics': logger,
+    '+thingId/$sub/+name': subscriptionMsg
 };

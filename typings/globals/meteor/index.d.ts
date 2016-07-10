@@ -1538,6 +1538,7 @@ declare module "meteor/mongo" {
       map < U > (callback: (doc: T, index: number, cursor: Cursor < T > ) => U, thisArg ? : any): Array < U > ;
       observe(callbacks: ObserveCallbacks): Meteor.LiveQueryHandle;
       observeChanges(callbacks: ObserveChangesCallbacks): Meteor.LiveQueryHandle;
+      _getCollectionName(): string;
     }
 
     var ObjectID: ObjectIDStatic;

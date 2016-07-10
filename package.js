@@ -12,7 +12,9 @@ Package.describe({
 
 Npm.depends({
   'mqtt': '1.11.2',
-  'mqtt-emitter': '1.2.4'
+  'mqtt-emitter': '1.2.4',
+  'mosca': '1.4.1',    // For testing. Mosca v2 does not support node v0.10
+  'portfinder': '1.0.3'
 });
 
 Package.onUse(function(api) {
@@ -27,7 +29,9 @@ Package.onUse(function(api) {
 Package.onTest(function(api) {
   api.use('metemq:metemq');
 
-  api.use(['ecmascript', 'practicalmeteor:mocha', 'practicalmeteor:chai']);
+  api.use('barbatus:typescript@0.3.3');
 
-  api.mainModule('test/index.js');
+  api.use(['practicalmeteor:mocha', 'practicalmeteor:chai']);
+
+  api.mainModule('test/index.ts');
 });
