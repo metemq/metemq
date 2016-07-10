@@ -80,9 +80,9 @@ describe('Topic [+thingId/$sub/+name]', function() {
             assert.deepEqual(subscription.params, params);
         });
 
-        it('should send added messages to the thing when a document is added', function(done) {
-            let documentId;
+        let documentId;
 
+        it('should send added messages to the thing when a document is added', function(done) {
             broker.once('published', function(packet, client) {
                 let topic = packet.topic;
                 let payload = packet.payload.toString();
@@ -90,10 +90,72 @@ describe('Topic [+thingId/$sub/+name]', function() {
                 assert.strictEqual(payload, '123');
                 done();
             });
-
+            // Insert new document into test collection
             documentId = collection.insert({ 'value': 123 });
         });
 
-				/* TODO: changed, removed message tests */
+        it('should send changed messages to the thing when a document is changed', function(done) {
+            broker.once('published', function(packet, client) {
+                let topic = packet.topic;
+                let payload = packet.payload.toString();
+                assert.equal(topic, `${thingId}/${name}/${collectionName}/${documentId}/changed/value`);
+                assert.strictEqual(payload, 'update');
+                done();
+            });
+            // Update document that inserted before
+            collection.update({ _id: documentId }, { $set: { value: 'update' } });
+        });
+
+        it('should send removed messages to the thing when a document is removed', function(done) {
+            broker.once('published', function(packet, client) {
+                let topic = packet.topic;
+                let payload = packet.payload.toString();
+                assert.equal(topic, `${thingId}/${name}/${collectionName}/${documentId}/removed`);
+                assert.strictEqual(payload, '');
+                done();
+            });
+            // Update document that inserted before
+            collection.remove({ _id: documentId });
+        });
+
+        describe('publish handler', function() {
+            it('should be executed in context of subscription', function(done) {
+                let session = source.sessions[thingId];
+
+                source.publish('context.test', function() {
+                    let subscription = session.subscriptions['context.test'];
+                    
+                    assert.equal(this, subscription);
+                    assert.equal(this.thingId, thingId);
+                    done();
+                    return collection.find();
+                });
+
+                subscriptionMsg('', { thingId: thingId, name: 'context.test' }, source);
+            });
+
+            it('should receive parameters as arguments', function(done) {
+                let session = source.sessions[thingId];
+
+                source.publish('param.test', function(one, two, three) {
+                    let subscription = session.subscriptions['param.test'];
+
+                    assert.equal(this, subscription);
+                    assert.equal(this.thingId, thingId);
+
+                    assert.strictEqual(one, 'one');
+                    assert.strictEqual(two, 2);
+                    assert.strictEqual(three, 3.456);
+                    done();
+                    return collection.find();
+                });
+
+                subscriptionMsg('one,2,3.456', { thingId: thingId, name: 'param.test' }, source);
+            });
+
+            it('should throw error when return value is not a Cursor', function() {
+                /* TODO */
+            });
+        });
     });
 });

@@ -36,4 +36,6 @@ export class Session {
     hasSubscription(name: string): boolean {
         return _.has(this.subscriptions, name);
     }
+
+    getThingId(): string { return this.thingId; }
 }

@@ -73,7 +73,7 @@ export class Source {
 
     private initialize() {
         this.mqtt.on('connect', Meteor.bindEnvironment(() => {
-            console.log('MQTT connected!')
+            console.log('Source connected to MeteMQ Broker!')
             this.mqtt.subscribe('#');
         }));
 

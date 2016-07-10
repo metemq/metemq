@@ -8,13 +8,20 @@ import { Session } from './session';
  * and send proper messages when they updated.
  */
 export class Subscription {
-  
+
+    /**
+     * Access inside publish handler.
+     */
+    thingId: string;
+
     constructor(
         private name: string,
         private session: Session,
         private handler: Function,
         private params: Array<string | number>
-    ) { }
+    ) {
+        this.thingId = session.getThingId();
+    }
 
     start() {
         let cursors: Mongo.Cursor<any>[] = [];
@@ -23,8 +30,14 @@ export class Subscription {
          * Run handler and check return value of it.
          */
         try {
-            // Run handler
-            let ret = this.handler.apply(this.session, this.params);
+            /**
+             * Run handler.
+             * Inside of handler function, 'this' is subscription object,
+             * and arguments are parameters that the thing sent.
+             * Since 'this' is subscription, users can use 'this.thingId' to
+             * enrich their logic.
+             */
+            let ret = this.handler.apply(this, this.params);
             // Push all cursors into variable cursors
             if (_.isArray(ret))
                 for (let val of ret)
@@ -47,7 +60,7 @@ export class Subscription {
              * It can be removed in the future.
              */
             let collectionName = cursor._getCollectionName();
-
+            // Track documents of cursor
             cursor.observeChanges({
                 added: (id, fields) => this.added(collectionName, id, fields),
                 changed: (id, fields) => this.changed(collectionName, id, fields),
@@ -95,6 +108,7 @@ export class Subscription {
 
     error(e) {
         /* TODO: Handle error */
+        console.error(e);
     }
 
     private isCursor(c) { return c && _.isFunction(c.observeChanges); }
