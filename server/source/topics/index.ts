@@ -1,8 +1,7 @@
 import * as mqtt from 'mqtt';
 
-import hello from './hello';
-import logger from './logger';
 import subscriptionMsg from './subscriptionMsg';
+import thingDisconnect from './thingDisconnect';
 import { Source } from '../source';
 import { Things } from '../../Things';
 import { SERVER_ID } from '../../config';
@@ -16,5 +15,6 @@ export type topicHandler = (payload, params?, source?: Source) => void;
 
 // Add topic handlers what you want!
 export const topicHandlers: { [topic: string]: topicHandler } = {
-    '+thingId/$sub/+name': subscriptionMsg
+    '+thingId/$sub/+name': subscriptionMsg,
+    '+thingId/$disconnect': thingDisconnect
 };

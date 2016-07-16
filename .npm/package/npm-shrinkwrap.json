@@ -727,7 +727,14 @@
     "kerberos": {
       "version": "0.0.21",
       "resolved": "https://registry.npmjs.org/kerberos/-/kerberos-0.0.21.tgz",
-      "from": "kerberos@>=0.0.0 <0.1.0"
+      "from": "kerberos@>=0.0.0 <0.1.0",
+      "dependencies": {
+        "nan": {
+          "version": "2.3.5",
+          "resolved": "https://registry.npmjs.org/nan/-/nan-2.3.5.tgz",
+          "from": "nan@>=2.3.0 <2.4.0"
+        }
+      }
     },
     "level-codec": {
       "version": "6.1.0",
@@ -789,6 +796,11 @@
           "version": "2.4.1",
           "resolved": "https://registry.npmjs.org/abstract-leveldown/-/abstract-leveldown-2.4.1.tgz",
           "from": "abstract-leveldown@>=2.4.0 <2.5.0"
+        },
+        "nan": {
+          "version": "2.3.5",
+          "resolved": "https://registry.npmjs.org/nan/-/nan-2.3.5.tgz",
+          "from": "nan@>=2.3.0 <2.4.0"
         }
       }
     },
@@ -949,9 +961,9 @@
       "from": "moving-average@0.1.1"
     },
     "mqtt": {
-      "version": "1.11.2",
-      "resolved": "https://registry.npmjs.org/mqtt/-/mqtt-1.11.2.tgz",
-      "from": "mqtt@1.11.2"
+      "version": "1.12.0",
+      "resolved": "https://registry.npmjs.org/mqtt/-/mqtt-1.12.0.tgz",
+      "from": "mqtt@1.12.0"
     },
     "mqtt-connection": {
       "version": "2.1.1",
@@ -1018,8 +1030,8 @@
       "from": "mv@>=2.0.0 <3.0.0"
     },
     "nan": {
-      "version": "2.3.5",
-      "resolved": "https://registry.npmjs.org/nan/-/nan-2.3.5.tgz",
+      "version": "2.4.0",
+      "resolved": "https://registry.npmjs.org/nan/-/nan-2.4.0.tgz",
       "from": "nan@>=2.0.5 <3.0.0"
     },
     "ncp": {
