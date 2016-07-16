@@ -13,6 +13,7 @@ export class Subscription {
      * Access inside publish handler.
      */
     thingId: string;
+    queryHandles: Meteor.LiveQueryHandle[] = [];
 
     constructor(
         private name: string,
@@ -61,12 +62,21 @@ export class Subscription {
              */
             let collectionName = cursor._getCollectionName();
             // Track documents of cursor
-            cursor.observeChanges({
+            let queryHandle = cursor.observeChanges({
                 added: (id, fields) => this.added(collectionName, id, fields),
                 changed: (id, fields) => this.changed(collectionName, id, fields),
                 removed: (id) => this.removed(collectionName, id),
             });
+
+            this.queryHandles.push(queryHandle);
         }
+    }
+
+
+    stop() {
+        // The query will run forever unless you call stop()
+        for (let queryHandle of this.queryHandles)
+            queryHandle.stop();
     }
 
     send(topic: string, payload?: any) {
