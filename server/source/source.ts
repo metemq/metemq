@@ -15,12 +15,22 @@ import { Session } from './session';
 export class Source {
     private mqtt: mqtt.Client;
     private topic = new MqttEmitter();
-    // Object that stores publish handlers.
-    // Key is publish name, and value is its handler
+
+    /**
+     * Object that stores publish handlers.
+     * Key is publish name, and value is its handler
+     */
     publishHandlers: { [name: string]: Function } = {};
-    // Object that stores sessions of things
-    // Key is thingId, and value is its session object
+    /**
+     * Object that stores sessions of things
+     * Key is thingId, and value is its session object
+     */
     sessions: { [thingId: string]: Session } = {};
+    /**
+     * Object that stores method handlers
+     * Key is name of a method, and value is its handler
+     */
+    methodHandlers: { [method: string]: Function } = {};
 
     constructor(brokerUrl: string, options?: SourceOptions) {
         // Overide default options with user defined options
@@ -44,6 +54,19 @@ export class Source {
             throw new Error('Duplicated publishes');
 
         this.publishHandlers[name] = handler;
+    }
+
+    methods(methods: { [name: string]: Function }) {
+        for (let method in methods) {
+            let handler = methods[method];
+
+            if (typeof handler !== 'function')
+                throw new Error(`Type of method '${method}' must be function!`);
+            if (_.has(this.methodHandlers, method))
+                throw new Error(`A method ${method} is already defined`);
+
+            this.methodHandlers[method] = handler;
+        }
     }
 
     send(topic: string, message: number)

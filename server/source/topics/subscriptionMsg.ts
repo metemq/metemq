@@ -1,11 +1,10 @@
 import { _ } from 'meteor/underscore';
-import * as mqtt from 'mqtt';
 import { Source } from '../source';
 import { Subscription } from '../subscription';
 import {
     NO_SUCH_PUBLICATION_NAME,
     DUPLICATED_SUBSCRIPTION
-} from '../../ddmq/subackCodes';
+} from '../../ddmq/ackCodes';
 import { parseCSV } from '../../ddmq/util';
 
 export default function subscriptionMsg(payload, params, source: Source) {
