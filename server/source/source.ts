@@ -13,8 +13,10 @@ import {
 import { Session } from './session';
 
 export class Source {
-    private mqtt: mqtt.Client;
+  
     private topic = new MqttEmitter();
+
+    mqtt: mqtt.Client;
 
     /**
      * Object that stores publish handlers.

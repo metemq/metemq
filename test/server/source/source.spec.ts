@@ -1,7 +1,6 @@
 import { assert } from 'meteor/practicalmeteor:chai';
 import { Source } from 'meteor/metemq:metemq';
 import { Mongo } from 'meteor/mongo';
-import * as portfinder from 'portfinder';
 import { createBroker } from '../../helpers/broker';
 
 const Things = new Mongo.Collection('things');
@@ -11,21 +10,24 @@ describe('class Source', function() {
     let source: Source;
     let port: number;
 
+    const collectionName = 'test.source.spec';
+    const collection = new Mongo.Collection(collectionName);
+
     // Wait for source to connect to broker
     this.timeout(10000);
 
-    // Find free port automatically
-    before(function(done) {
-        portfinder.getPort(function(err, freePort) {
-            if (err) throw err;
-            port = freePort;
-            done();
-        });
-    });
-
     // Create broker before tests
     before(function(done) {
-        broker = createBroker({ port: port }, function() { done(); });
+        createBroker((b) => {
+            broker = b;
+            port = broker.opts.port;
+            // Print log
+            broker.on('published', function(packet, client) {
+                console.log(`[${packet.topic}]->${packet.payload.toString()}`);
+            });
+
+            done();
+        });
     });
 
     // Close broker after tests
@@ -64,5 +66,18 @@ describe('class Source', function() {
                 assert.property(cursor, '_cursorDescription');
             })
         })
+    });
+
+    describe('#methods(method)', function() {
+        it('should register method handler', function() {
+            source.methods({
+                myMethod() {
+                    collection.insert({ hi: 'hello!' });
+                    return 'Hello, World!';
+                }
+            });
+
+            assert.property(source.methodHandlers, 'myMethod');
+        });
     });
 });

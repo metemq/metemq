@@ -49,6 +49,8 @@ export default function subscriptionMsg(payload, params, source: Source) {
 }
 
 function resultTypeCheck(result): boolean {
+    if (result === undefined || result === null) return true;
+
     if (_.isArray(result)) {
         for (let value of result)
             if (!isStringOrNumber(value)) return false;

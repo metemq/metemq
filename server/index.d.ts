@@ -1,15 +1,38 @@
+import * as mqtt from 'mqtt';
+
 declare module "meteor/metemq:metemq" {
 
     export class Source {
-        private mqtt;
         private topic;
 
-        publishHandlers: { [name: string]: Function };
-        sessions: { [thingId: string]: Session };
+        mqtt: mqtt.Client;
+
+        /**
+         * Object that stores publish handlers.
+         * Key is publish name, and value is its handler
+         */
+        publishHandlers: {
+            [name: string]: Function;
+        };
+        /**
+         * Object that stores sessions of things
+         * Key is thingId, and value is its session object
+         */
+        sessions: {
+            [thingId: string]: Session;
+        };
+        /**
+         * Object that stores method handlers
+         * Key is name of a method, and value is its handler
+         */
+        methodHandlers: {
+            [method: string]: Function;
+        };
 
         constructor(brokerUrl: string, options?: SourceOptions);
 
         publish(name: any, handler: any, options?: any): void;
+        methods(methods: { [name: string]: Function }): void;
         send(topic: string, message: number): any;
         send(topic: string, message: string): any;
         getSession(thingId: string): Session;
