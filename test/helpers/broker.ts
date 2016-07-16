@@ -1,14 +1,16 @@
 import * as mosca from 'mosca';
+import * as portfinder from 'portfinder';
 
-export function createBroker(options, done?) {
-    let broker = new mosca.Server(options);
+export function createBroker(callback: (broker) => void) {
+    portfinder.getPort(function(err, port) {
+        if (err) throw err;
 
-    broker.on('ready', setup);
+        let broker = new mosca.Server({ port: port });
 
-    function setup() {
-        if (typeof done === 'function')
-            done();
-    }
+        broker.on('ready', setup);
 
-    return broker;
+        function setup() {
+            callback(broker);
+        }
+    });
 }

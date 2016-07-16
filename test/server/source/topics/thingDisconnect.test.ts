@@ -1,7 +1,6 @@
 import thingDisconnect from '../../../../server/source/topics/thingDisconnect';
 import subscriptionMsg from '../../../../server/source/topics/subscriptionMsg';
 
-import * as portfinder from 'portfinder';
 import { Source } from 'meteor/metemq:metemq';
 import { Mongo } from 'meteor/mongo';
 import { _ } from 'meteor/underscore';
@@ -17,26 +16,27 @@ describe('Topic [+thingId/$disconnect]', function() {
     // Wait for source to connect to broker
     this.timeout(10000);
 
-    // Find free port automatically
-    before(function(done) {
-        portfinder.getPort(function(err, freePort) {
-            if (err) throw err;
-            port = freePort;
-            done();
-        });
-    });
-
     // Create broker before tests
     before(function(done) {
-        broker = createBroker({ port: port }, function() { done(); });
-        broker.on('published', function(packet, client) {
-            console.log(`[${packet.topic}]->${packet.payload.toString()}`);
+        createBroker((b) => {
+            broker = b;
+            port = broker.opts.port;
+            // Print log
+            broker.on('published', function(packet, client) {
+                console.log(`[${packet.topic}]->${packet.payload.toString()}`);
+            });
+
+            done();
         });
     });
 
     before(function(done) {
         source = new Source(`mqtt://localhost:${port}`);
         broker.once('clientConnected', function() { done(); });
+    });
+
+    after(function(done) {
+        source.mqtt.end(false, () => done());
     });
 
     // Close broker after tests
