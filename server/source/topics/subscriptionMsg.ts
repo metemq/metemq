@@ -12,14 +12,14 @@ export default function subscriptionMsg(payload, params, source: Source) {
     let name: string = params.name;
 
     // Check unknown publish name
-    if (!_.has(source.publishHandlers, name)) {
+    if (!_.has(source.publications, name)) {
         // Send $suback message with NO_SUCH_PUBLICATION_NAME error code
         source.send(`${thingId}/$suback/${name}`, NO_SUCH_PUBLICATION_NAME);
         return;
     }
 
     // Get publish handler of name
-    let handler = source.publishHandlers[name];
+    let publication = source.publications[name];
     // Parse thing's comma-separated subscription parameters
     let pubParams = parseCSV(payload);
     // Get thing's session
@@ -36,7 +36,7 @@ export default function subscriptionMsg(payload, params, source: Source) {
         return;
     }
     // New subscription!
-    let subscription = new Subscription(name, session, handler, pubParams);
+    let subscription = new Subscription(name, session, publication, pubParams);
     // Register subscription at session
     session.registerSubscription(subscription);
     // Start subscription

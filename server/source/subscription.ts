@@ -1,6 +1,8 @@
 import { _ } from 'meteor/underscore';
 import { Mongo } from 'meteor/mongo';
 import { Session } from './session';
+import { Publication } from './publication';
+import { mkString } from '../ddmq/util';
 
 /**
  * Represents one thing session's one subscription.
@@ -18,15 +20,14 @@ export class Subscription {
     constructor(
         private name: string,
         private session: Session,
-        private handler: Function,
+        private publication: Publication,
         private params: Array<string | number>
     ) {
         this.thingId = session.getThingId();
     }
 
     start() {
-        let cursors: Mongo.Cursor<any>[] = [];
-
+        let cursor: Mongo.Cursor<any>;
         /**
          * Run handler and check return value of it.
          */
@@ -38,38 +39,23 @@ export class Subscription {
              * Since 'this' is subscription, users can use 'this.thingId' to
              * enrich their logic.
              */
-            let ret = this.handler.apply(this, this.params);
-            // Push all cursors into variable cursors
-            if (_.isArray(ret))
-                for (let val of ret)
-                    cursors.push(val);
-            else
-                cursors.push(ret);
+            cursor = this.publication.handler.apply(this, this.params);
 
-            // Check whether each element in cursors is cursor
-            for (let cursor of cursors)
-                if (!this.isCursor(cursor))
-                    throw new Error('Publish handler should return array of Cursors');
+            if (!this.isCursor(cursor))
+                throw new Error(`Handler of publication '${this.publication.name}' should return array of Cursors`);
         } catch (e) {
             this.error(e);
             return;
         }
 
-        for (let cursor of cursors) {
-            /* XXX:
-             * _getCollectionName() is private function of Meteor's Cursor.
-             * It can be removed in the future.
-             */
-            let collectionName = cursor._getCollectionName();
-            // Track documents of cursor
-            let queryHandle = cursor.observeChanges({
-                added: (id, fields) => this.added(collectionName, id, fields),
-                changed: (id, fields) => this.changed(collectionName, id, fields),
-                removed: (id) => this.removed(collectionName, id),
-            });
+        // Track documents of cursor
+        let queryHandle = cursor.observeChanges({
+            added: (id, fields) => this.added(_.extend(fields, { _id: id })),
+            changed: (id, fields) => this.changed(fields),  // _id is not a changed field
+            removed: (id) => this.removed(id),
+        });
 
-            this.queryHandles.push(queryHandle);
-        }
+        this.queryHandles.push(queryHandle);
     }
 
 
@@ -83,37 +69,31 @@ export class Subscription {
         this.session.send(`${this.name}/${topic}`, payload);
     }
 
-    added(collectionName: string, id: string, fields: Object) {
-        /** XXX:
-         * We might need 3 message ID. messageId/#message/global_messageId
-         * For example, a document was added, so we published three topics.
-         * 'thing01/somePub/colName/doc02/field_1/added'
-         * 'thing01/somePub/colName/doc02/field_2/added'
-         * 'thing01/somePub/colName/doc02/field_3/added'
-         * But, things don't know that they get all of messages when they get
-         * first message. So, in my opinion, topics should be like
-         * 'thing01/somePub/colName/doc02/field_1/added/1/3'
-         * 'thing01/somePub/colName/doc02/field_2/added/2/3'
-         * 'thing01/somePub/colName/doc02/field_3/added/3/3'
-         * And, maybe pubsub messages can be received in arbitrary order,
-         * so may need global_messageId like
-         * 'thing01/somePub/colName/doc02/field_1/added/1/3/1234'
-         */
-        for (let key in fields) {
-            let value = fields[key];
-            this.send(`${collectionName}/${id}/added/${key}`, value);
-        }
+    added(fields: Object) {
+        // Convert fields to CSV string
+        let csvString = this.fields2csv(fields);
+        // If length of CSV string is smaller than length of user-defined fields,
+        // then csvString only contrains comma
+        // That means we don't have to send message to the thing
+        if (csvString.length < this.publication.fields.length) return;
+        // Send $added message to the thing
+        this.send('$added', csvString);
     }
 
-    changed(collectionName: string, id: string, fields: Object) {
-        for (let key in fields) {
-            let value = fields[key];
-            this.send(`${collectionName}/${id}/changed/${key}`, value);
-        }
+    changed(fields: Object) {
+        // Convert fields to CSV string
+        let csvString = this.fields2csv(fields);
+        // If length of CSV string is smaller than length of user-defined fields,
+        // then csvString only contrains comma
+        // That means we don't have to send message to the thing
+        if (csvString.length < this.publication.fields.length) return;
+        // Send $changed message to the thing
+        this.send('$changed', csvString);
     }
 
-    removed(collectionName: string, id: string) {
-        this.send(`${collectionName}/${id}/removed`);
+    removed(id: string) {
+        if (_.contains(this.publication.fields, '_id'))
+            this.send('$removed', id);
     }
 
     error(e) {
@@ -121,7 +101,31 @@ export class Subscription {
         console.error(e);
     }
 
-    private isCursor(c) { return c && _.isFunction(c.observeChanges); }
-
     getName(): string { return this.name; }
+
+    private fields2csv(fields: Object): string {
+        let arr = [];
+        // Collect user-defined fields in order
+        for (let field of this.publication.fields)
+            arr.push(fields[field]);
+        // Field value type check
+        if (!this.isSimpleArray(arr))
+            throw new Error(`Cursor which is returned by publish ${this.publication.name} should only contain string or number fields`);
+        // Convert array to CSV string
+        return mkString(arr);
+    }
+
+    /**
+     * If input array is an array of string & number, then true, else false
+     */
+    private isSimpleArray(arr): boolean {
+        if (!_.isArray(arr)) return false;
+        for (let val of arr)
+            if (val === undefined) continue;
+            else if (typeof val !== 'string' && typeof val !== 'number')
+                return false;
+        return true;
+    }
+
+    private isCursor(c) { return c && _.isFunction(c.observeChanges); }
 }
