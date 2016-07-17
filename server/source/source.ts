@@ -13,8 +13,10 @@ import {
 import { Session } from './session';
 
 export class Source {
-  
+
     private topic = new MqttEmitter();
+    private publisher = null;
+    private queue = new Array();
 
     mqtt: mqtt.Client;
 
@@ -81,7 +83,21 @@ export class Source {
         if (typeof message === 'undefined')
             message = '';
 
-        this.mqtt.publish(topic, message);
+        this.queue.push({topic, message});
+
+        if (this.publisher === null) {
+            this.publisher = setInterval( () => {
+                let obj = this.queue.shift();
+
+                this.mqtt.publish(obj.topic, obj.message);
+
+                if (this.queue.length === 0) {
+                    clearInterval(this.publisher);
+
+                    this.publisher = null;
+                }
+            }, 0);
+        }
     }
 
     getSession(thingId: string): Session {
