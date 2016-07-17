@@ -42,12 +42,14 @@ describe('Topic [+thingId/$sub/+name]', function() {
     });
 
     describe('Handler: subscriptionMsg', function() {
+        const collectionName = 'test.subscriptionMsg';
+        const collection = new Mongo.Collection(collectionName);
         const name = 'myPub';
+        const fields = ['_id', 'name', 'value'];
         const thingId = 'myThing01';
         const payload = 'one,2,3.456';
         const params = ['one', 2, 3.456];
-        const collectionName = 'test';
-        const collection = new Mongo.Collection(collectionName);
+
 
         // Reset collection
         before(function(done) {
@@ -56,9 +58,7 @@ describe('Topic [+thingId/$sub/+name]', function() {
 
         // Publish test publication
         before(function() {
-            source.publish(name, function() {
-                return collection.find();
-            });
+            source.publish(name, () => { return collection.find() }, fields);
         });
 
         before(function() {
@@ -82,36 +82,49 @@ describe('Topic [+thingId/$sub/+name]', function() {
 
         let documentId;
 
-        it('should send added messages to the thing when a document is added', function(done) {
+        it('should send $added messages to the thing when a document is added', function(done) {
             broker.once('published', function(packet, client) {
                 let topic = packet.topic;
                 let payload = packet.payload.toString();
-                assert.equal(topic, `${thingId}/${name}/${collectionName}/${documentId}/added/value`);
-                assert.strictEqual(payload, '123');
+                assert.equal(topic, `${thingId}/${name}/$added`);
+                assert.equal(payload, `${documentId},,123`);
                 done();
             });
             // Insert new document into test collection
             documentId = collection.insert({ 'value': 123 });
         });
 
-        it('should send changed messages to the thing when a document is changed', function(done) {
+        it('should send $changed messages to the thing when a document is changed', function(done) {
             broker.once('published', function(packet, client) {
                 let topic = packet.topic;
                 let payload = packet.payload.toString();
-                assert.equal(topic, `${thingId}/${name}/${collectionName}/${documentId}/changed/value`);
-                assert.strictEqual(payload, 'update');
+                assert.equal(topic, `${thingId}/${name}/$changed`);
+                assert.equal(payload, ',thingName,');
                 done();
             });
             // Update document that inserted before
-            collection.update({ _id: documentId }, { $set: { value: 'update' } });
+            collection.update({ _id: documentId }, { $set: { name: 'thingName' } });
         });
 
-        it('should send removed messages to the thing when a document is removed', function(done) {
+        it('should not send $changed message when a field not in user-defined fields is changed', function(done) {
             broker.once('published', function(packet, client) {
                 let topic = packet.topic;
                 let payload = packet.payload.toString();
-                assert.equal(topic, `${thingId}/${name}/${collectionName}/${documentId}/removed`);
-                assert.strictEqual(payload, '');
+                assert.equal(topic, `${thingId}/${name}/$changed`);
+                assert.equal(payload, ',,4321');
+                done();
+            });
+            // Update document that inserted before
+            collection.update({ _id: documentId }, { $set: { otherField: 'thingName' } });
+            collection.update({ _id: documentId }, { $set: { value: 4321 } });
+        })
+
+        it('should send $removed messages to the thing when a document is removed', function(done) {
+            broker.once('published', function(packet, client) {
+                let topic = packet.topic;
+                let payload = packet.payload.toString();
+                assert.equal(topic, `${thingId}/${name}/$removed`);
+                assert.equal(payload, documentId);
                 done();
             });
             // Update document that inserted before
@@ -128,8 +141,9 @@ describe('Topic [+thingId/$sub/+name]', function() {
                     assert.equal(this, subscription);
                     assert.equal(this.thingId, thingId);
                     done();
+
                     return collection.find();
-                });
+                }, ['_id']);
 
                 subscriptionMsg('', { thingId: thingId, name: 'context.test' }, source);
             });
@@ -147,8 +161,9 @@ describe('Topic [+thingId/$sub/+name]', function() {
                     assert.strictEqual(two, 2);
                     assert.strictEqual(three, 3.456);
                     done();
+
                     return collection.find();
-                });
+                }, ['_id']);
 
                 subscriptionMsg('one,2,3.456', { thingId: thingId, name: 'param.test' }, source);
             });

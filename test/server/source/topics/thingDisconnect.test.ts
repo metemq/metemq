@@ -60,7 +60,7 @@ describe('Topic [+thingId/$disconnect]', function() {
         before(function() {
             source.publish('aPub', function() {
                 return collection.find();
-            });
+            }, ['_id']);
         });
 
         before(function() {
