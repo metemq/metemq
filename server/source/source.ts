@@ -96,7 +96,7 @@ export class Source {
 
                     this.publisher = null;
                 }
-            }, 1);
+            }, 0);
         }
     }
 
