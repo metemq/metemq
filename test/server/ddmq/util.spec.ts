@@ -1,5 +1,5 @@
 import { assert } from 'meteor/practicalmeteor:chai';
-import { parseCSV } from '../../../server/ddmq/util';
+import { parseCSV, mkString } from '../../../server/ddmq/util';
 
 describe('module DDMQ Util', function() {
 
@@ -17,6 +17,13 @@ describe('module DDMQ Util', function() {
             let output = parseCSV(input);
 
             assert.deepEqual(output, [1, 2, 3]);
+        });
+
+        it('should parse comma-separated negative numbers', function() {
+            let input = '1,-2,-3.456';
+            let output = parseCSV(input);
+
+            assert.deepEqual(output, [1, -2, -3.456]);
         });
 
         it('should parse comma-separated floats', function() {
@@ -46,6 +53,39 @@ describe('module DDMQ Util', function() {
 
             assert.isArray(output);
             assert.lengthOf(output, 0);
+        });
+    });
+
+    describe('#mkString(arr)', function() {
+
+        it('should convert a string array to CSV string', function() {
+            let input = ['one', 'two', 'three'];
+            let output = mkString(input);
+
+            assert.equal(output, 'one,two,three');
+        });
+
+        it('should convert a number array to CSV string', function() {
+            let input = [1, 2, 3];
+            let output = mkString(input);
+
+            assert.equal(output, '1,2,3');
+        });
+
+
+        it('should convert a mixed array to CSV string', function() {
+            let input = [1, 'two', 3.456];
+            let output = mkString(input);
+
+            assert.equal(output, '1,two,3.456');
+        });
+
+        it('should convert an undefined element to blank', function() {
+            assert.equal(mkString([1, 'two', undefined]), '1,two,');
+            assert.equal(mkString([undefined, 'two', 3.456]), ',two,3.456');
+            assert.equal(mkString(['one', undefined, 3]), 'one,,3');
+            assert.equal(mkString([1, undefined, undefined]), '1,,');
+            assert.equal(mkString([undefined, null, undefined]), ',,');
         });
     });
 });

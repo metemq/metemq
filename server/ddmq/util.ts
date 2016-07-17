@@ -49,7 +49,9 @@ export function mkString(values: any): string {
         let csvString = '';
 
         for (let val of values) {
-            if (typeof val === 'string')
+            if (val === undefined || val === null)
+                csvString += ',';
+            else if (typeof val === 'string')
                 csvString += ',' + val.trim();
             else if (typeof val === 'number')
                 csvString += ',' + val.toString();

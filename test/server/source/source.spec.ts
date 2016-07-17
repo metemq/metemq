@@ -42,30 +42,23 @@ describe('class Source', function() {
         });
     });
 
-    describe('#publish(name, handler, options?)', function() {
+    describe('#publish(name, handler, fields)', function() {
         let handler = function() {
             return Things.find();
         }
 
-        it('should add publish handler whose key is its name, and value is handler', function() {
-            source.publish('somePub', handler);
+        it('should add publicatoin which has the handler', function() {
+            source.publish('somePub', handler, ['_id']);
 
-            assert.property(source.publishHandlers, 'somePub');
-            assert.equal(handler, source.publishHandlers['somePub']);
+            assert.property(source.publications, 'somePub');
+            assert.equal(source.publications['somePub'].handler, handler);
         });
 
         it('should throws error, if there are duplicated publications', function() {
             assert.throws(function() {
-                source.publish('somePub', function() { });
+                source.publish('somePub', handler, ['_id']);
             });
         });
-
-        describe('publishHandlers', function() {
-            it('should return cursor', function() {
-                let cursor = source.publishHandlers['somePub']();
-                assert.property(cursor, '_cursorDescription');
-            })
-        })
     });
 
     describe('#methods(method)', function() {

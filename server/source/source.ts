@@ -11,6 +11,7 @@ import {
     SourceOptions
 } from './sourceOptions';
 import { Session } from './session';
+import { Publication, PublishHandler } from './publication';
 
 export class Source {
 
@@ -21,10 +22,10 @@ export class Source {
     mqtt: mqtt.Client;
 
     /**
-     * Object that stores publish handlers.
-     * Key is publish name, and value is its handler
+     * Object that stores publications
+     * Key is publish name, and value is its publication object
      */
-    publishHandlers: { [name: string]: Function } = {};
+    publications: { [name: string]: Publication } = {};
     /**
      * Object that stores sessions of things
      * Key is thingId, and value is its session object
@@ -53,11 +54,17 @@ export class Source {
         this.registerHandlers();
     }
 
-    publish(name, handler, options?) {
-        if (_.has(this.publishHandlers, name))
+    publish(name: string, handler: PublishHandler, fields: string[]) {
+        if (_.has(this.publications, name))
             throw new Error('Duplicated publishes');
+        if (typeof handler !== 'function')
+            throw new Error(`Handler of publication ${name} is not a function`);
+        if (!_.isArray(fields))
+            throw new Error(`Fields of publication ${name} is not an array`);
+        if (fields.length === 0)
+            throw new Error(`Fields of publication ${name} should contain one field at least`);
 
-        this.publishHandlers[name] = handler;
+        this.publications[name] = new Publication(name, handler, fields);
     }
 
     methods(methods: { [name: string]: Function }) {
