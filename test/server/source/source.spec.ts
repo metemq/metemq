@@ -3,8 +3,6 @@ import { Source } from 'meteor/metemq:metemq';
 import { Mongo } from 'meteor/mongo';
 import { createBroker } from '../../helpers/broker';
 
-const Things = new Mongo.Collection('things');
-
 describe('class Source', function() {
     let broker;
     let source: Source;
@@ -44,7 +42,7 @@ describe('class Source', function() {
 
     describe('#publish(name, handler, fields)', function() {
         let handler = function() {
-            return Things.find();
+            return collection.find();
         }
 
         it('should add publicatoin which has the handler', function() {
