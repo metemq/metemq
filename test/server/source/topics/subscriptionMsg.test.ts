@@ -29,7 +29,7 @@ describe('Topic [+thingId/$sub/+name]', function() {
 
     before(function(done) {
         source = new Source(`mqtt://localhost:${port}`);
-        broker.once('clientConnected', function() { done(); });
+        source.mqtt.once('connect', function() { done(); });
     });
 
     after(function(done) {
@@ -83,9 +83,8 @@ describe('Topic [+thingId/$sub/+name]', function() {
         let documentId;
 
         it('should send $added messages to the thing when a document is added', function(done) {
-            broker.once('published', function(packet, client) {
-                let topic = packet.topic;
-                let payload = packet.payload.toString();
+            source.mqtt.once('message', function(topic, message) {
+                let payload = message.toString();
                 assert.equal(topic, `${thingId}/${name}/$added`);
                 assert.equal(payload, `${documentId},,123`);
                 done();
@@ -95,9 +94,8 @@ describe('Topic [+thingId/$sub/+name]', function() {
         });
 
         it('should send $changed messages to the thing when a document is changed', function(done) {
-            broker.once('published', function(packet, client) {
-                let topic = packet.topic;
-                let payload = packet.payload.toString();
+            source.mqtt.once('message', function(topic, message) {
+                let payload = message.toString();
                 assert.equal(topic, `${thingId}/${name}/$changed`);
                 assert.equal(payload, ',thingName,');
                 done();
@@ -107,9 +105,8 @@ describe('Topic [+thingId/$sub/+name]', function() {
         });
 
         it('should not send $changed message when a field not in user-defined fields is changed', function(done) {
-            broker.once('published', function(packet, client) {
-                let topic = packet.topic;
-                let payload = packet.payload.toString();
+            source.mqtt.once('message', function(topic, message) {
+                let payload = message.toString();
                 assert.equal(topic, `${thingId}/${name}/$changed`);
                 assert.equal(payload, ',,4321');
                 done();
@@ -120,9 +117,8 @@ describe('Topic [+thingId/$sub/+name]', function() {
         })
 
         it('should send $removed messages to the thing when a document is removed', function(done) {
-            broker.once('published', function(packet, client) {
-                let topic = packet.topic;
-                let payload = packet.payload.toString();
+            source.mqtt.once('message', function(topic, message) {
+                let payload = message.toString();
                 assert.equal(topic, `${thingId}/${name}/$removed`);
                 assert.equal(payload, documentId);
                 done();

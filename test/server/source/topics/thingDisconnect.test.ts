@@ -32,7 +32,7 @@ describe('Topic [+thingId/$disconnect]', function() {
 
     before(function(done) {
         source = new Source(`mqtt://localhost:${port}`);
-        broker.once('clientConnected', function() { done(); });
+        source.mqtt.once('connect', function() { done(); });
     });
 
     after(function(done) {
