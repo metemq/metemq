@@ -3,7 +3,7 @@ import { Mongo } from 'meteor/mongo';
 import { Session } from './session';
 import { Publication } from './publication';
 import { mkString } from '../ddmq/util';
-
+import { OK, INTERNAL_SERVER_ERROR } from '../ddmq/ackCodes';
 /**
  * Represents one thing session's one subscription.
  * It is responsible for tracking updates of subscribed documents,
@@ -47,6 +47,9 @@ export class Subscription {
             this.error(e);
             return;
         }
+
+        // Send $suback message to the thing
+        this.session.send(`$suback/${this.name}`, OK);
 
         // Track documents of cursor
         let queryHandle = cursor.observeChanges({
@@ -97,8 +100,12 @@ export class Subscription {
     }
 
     error(e) {
-        /* TODO: Handle error */
-        console.error(e);
+        // Send $suback message with INTERNAL_SERVER_ERROR code
+        this.session.send(`$suback/${this.name}`, INTERNAL_SERVER_ERROR);
+        // Stop observing cursors
+        this.stop();
+        // Unregister this subscription from session of the thing
+        delete this.session.subscriptions[this.name];
     }
 
     getName(): string { return this.name; }
