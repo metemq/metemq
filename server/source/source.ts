@@ -63,6 +63,8 @@ export class Source {
             throw new Error(`Fields of publication ${name} is not an array`);
         if (fields.length === 0)
             throw new Error(`Fields of publication ${name} should contain one field at least`);
+        if (name[0] === '$')
+            throw new Error(`Publication name '${name}' cannot starts with $`);
 
         this.publications[name] = new Publication(name, handler, fields);
     }
