@@ -66,6 +66,8 @@ export class Subscription {
         // The query will run forever unless you call stop()
         for (let queryHandle of this.queryHandles)
             queryHandle.stop();
+        // Remove all stopped query handles from array
+        this.queryHandles = null;
     }
 
     send(topic: string, payload?: any) {
@@ -99,13 +101,16 @@ export class Subscription {
             this.send('$removed', id);
     }
 
-    error(e) {
+    error(e: Error) {
         // Send $suback message with INTERNAL_SERVER_ERROR code
         this.session.send(`$suback/${this.name}`, INTERNAL_SERVER_ERROR);
         // Stop observing cursors
         this.stop();
         // Unregister this subscription from session of the thing
         delete this.session.subscriptions[this.name];
+        // Print to console
+        console.error(`MeteMQ publication ${this.name} internal error`);
+        console.trace(e);
     }
 
     getName(): string { return this.name; }

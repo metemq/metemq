@@ -1,4 +1,5 @@
 import subscriptionMsg from '../../../../server/source/topics/subscriptionMsg';
+import { INTERNAL_SERVER_ERROR } from '../../../../server/ddmq/ackCodes';
 
 import { Source } from 'meteor/metemq:metemq';
 import { Mongo } from 'meteor/mongo';
@@ -127,7 +128,7 @@ describe('Topic [+thingId/$sub/+name]', function() {
             collection.remove({ _id: documentId });
         });
 
-        describe('publish handler', function() {
+        describe('Publish handler', function() {
             it('should be executed in context of subscription', function(done) {
                 let session = source.sessions[thingId];
 
@@ -162,6 +163,30 @@ describe('Topic [+thingId/$sub/+name]', function() {
                 }, ['_id']);
 
                 subscriptionMsg('one,2,3.456', { thingId: thingId, name: 'param.test' }, source);
+            });
+
+            describe('Handler throwing error', function() {
+                it('should send INTERNAL_SERVER_ERROR code when publish function throws error', function(done) {
+
+                    source.publish('evilPub', function() {
+                        throw new Error('Do not subscribe me!!!');
+                    }, ['_id']);
+
+                    source.mqtt.once('message', function(topic, message) {
+                        let payload = message.toString();
+                        assert.equal(topic, `${thingId}/$suback/evilPub`);
+                        assert.equal(payload, INTERNAL_SERVER_ERROR);
+                        done();
+                    });
+
+                    subscriptionMsg('', { thingId: thingId, name: 'evilPub' }, source);
+                });
+
+                it('should unregister subscription from session of the thing', function() {
+                    let session = source.sessions[thingId];
+                    let subscription = session.subscriptions['evilPub'];
+                    assert.isUndefined(subscription);
+                });
             });
 
             it('should throw error when return value is not a Cursor', function() {

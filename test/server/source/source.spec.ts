@@ -57,6 +57,12 @@ describe('class Source', function() {
                 source.publish('somePub', handler, ['_id']);
             });
         });
+
+        it('should throws error, if name starts with $', function() {
+            assert.throws(function() {
+                source.publish('$nanana', () => { }, ['_id']);
+            });
+        });
     });
 
     describe('#methods(method)', function() {
