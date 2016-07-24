@@ -13,7 +13,8 @@ export class Session {
 
     constructor(
         private thingId: string,
-        private source: Source
+        private source: Source,
+        private userId?: string
     ) { }
 
     /**
@@ -38,4 +39,8 @@ export class Session {
     }
 
     getThingId(): string { return this.thingId; }
+
+    getUserId(): string { return this.userId; }
+
+    setUserId(userId: string) { this.userId = userId; }
 }
