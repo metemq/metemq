@@ -229,6 +229,8 @@ declare module "meteor/accounts-base" {
   module Accounts {
     var emailTemplates: EmailTemplates;
 
+    function _checkPassword(user, password): { userId: string, error?: Error };
+
     function addEmail(userId: string, newEmail: string, verified ? : boolean): void;
 
     function removeEmail(userId: string, email: string): void;
