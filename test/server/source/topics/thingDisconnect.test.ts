@@ -56,6 +56,11 @@ describe('Topic [+thingId/$disconnect]', function() {
             collection.remove({}, done);
         });
 
+        before(function() {
+            source.createSession('thing01');
+            source.createSession('thing02');
+        });
+
         // Publish test publication
         before(function() {
             source.publish('aPub', function() {

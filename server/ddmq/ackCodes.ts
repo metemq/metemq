@@ -1,13 +1,26 @@
 /*****************************
  * $suback CODES
  *****************************/
-export const OK = 0;
-export const NO_SUCH_PUBLICATION_NAME = 1;
-export const DUPLICATED_SUBSCRIPTION = 2;
-export const INTERNAL_SERVER_ERROR = 3;
+export const SUBACK = {
+  OK:                         0,
+  NO_SUCH_PUBLICATION_NAME:   1,
+  DUPLICATED_SUBSCRIPTION:    2,
+  INTERNAL_SERVER_ERROR:      3
+};
 
 /*****************************
  * $callack CODES
  *****************************/
-export const NO_SUCH_METHOD = 3;
-export const METHOD_EXCEPTION = 4;
+export const CALLACK = {
+  NO_SUCH_METHOD:   0,
+  METHOD_EXCEPTION: 1
+};
+
+/*****************************
+ * $connack CODES
+ *****************************/
+ export const CONNACK = {
+   OK:                0,
+   WRONG_PASSWORD:    1,
+   NO_SUCH_USER:      2
+ };

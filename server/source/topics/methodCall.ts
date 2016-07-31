@@ -1,7 +1,7 @@
 import { _ } from 'meteor/underscore';
 import { Source } from '../source';
 import { parseCSV, mkString } from '../../ddmq/util';
-import { NO_SUCH_METHOD, METHOD_EXCEPTION } from '../../ddmq/ackCodes';
+import { CALLACK } from '../../ddmq/ackCodes';
 
 export default function subscriptionMsg(payload, params, source: Source) {
     const thingId: string = params.thingId;
@@ -11,7 +11,7 @@ export default function subscriptionMsg(payload, params, source: Source) {
     // Check the method is defined
     if (!_.has(source.methodHandlers, method)) {
         // Send $callack message with NO_SUCH_METHOD error code
-        source.send(`${thingId}/$callack/${msgId}/${NO_SUCH_METHOD}`, '');
+        source.send(`${thingId}/$callack/${msgId}/${CALLACK.NO_SUCH_METHOD}`, '');
         return;
     }
 
@@ -33,7 +33,7 @@ export default function subscriptionMsg(payload, params, source: Source) {
     // If there was an exception while running method handler,
     // send METHOD_EXCEPTION to the thing
     if (error) {
-        source.send(`${thingId}/$callack/${msgId}/${METHOD_EXCEPTION}`, error.message);
+        source.send(`${thingId}/$callack/${msgId}/${CALLACK.METHOD_EXCEPTION}`, error.message);
         return;
     }
 
