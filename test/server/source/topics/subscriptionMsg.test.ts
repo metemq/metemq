@@ -1,5 +1,5 @@
 import subscriptionMsg from '../../../../server/source/topics/subscriptionMsg';
-import { INTERNAL_SERVER_ERROR } from '../../../../server/ddmq/ackCodes';
+import { SUBACK } from '../../../../server/ddmq/ackCodes';
 
 import { Source } from 'meteor/metemq:metemq';
 import { Mongo } from 'meteor/mongo';
@@ -51,10 +51,13 @@ describe('Topic [+thingId/$sub/+name]', function() {
         const payload = 'one,2,3.456';
         const params = ['one', 2, 3.456];
 
-
         // Reset collection
         before(function(done) {
             collection.remove({}, done);
+        });
+
+        before(function() {
+            source.createSession(thingId);
         });
 
         // Publish test publication
@@ -175,7 +178,7 @@ describe('Topic [+thingId/$sub/+name]', function() {
                     source.mqtt.once('message', function(topic, message) {
                         let payload = message.toString();
                         assert.equal(topic, `${thingId}/$suback/evilPub`);
-                        assert.equal(payload, INTERNAL_SERVER_ERROR);
+                        assert.equal(payload, SUBACK.INTERNAL_SERVER_ERROR);
                         done();
                     });
 

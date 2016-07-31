@@ -1,8 +1,6 @@
-import * as mqtt from 'mqtt';
+declare namespace MeteMQ {
 
-declare module "meteor/metemq:metemq" {
-
-    export class Source {
+    class Source {
         private topic;
         mqtt: mqtt.Client;
         /**
@@ -39,20 +37,20 @@ declare module "meteor/metemq:metemq" {
         private addHandler(topicPattern, handler);
     }
 
-    export type PublishHandler = (...args) => Mongo.Cursor<any>;
+    type PublishHandler = (...args) => Mongo.Cursor<any>;
 
-    export class Publication {
+    class Publication {
         name: string;
         handler: PublishHandler;
         fields: string[];
         constructor(name: string, handler: PublishHandler, fields: string[]);
     }
 
-    export interface SourceOptions {
+    interface SourceOptions {
         serverId?: string;
     }
 
-    export class Session {
+    class Session {
         private thingId;
         private source;
 
@@ -71,7 +69,7 @@ declare module "meteor/metemq:metemq" {
         getThingId(): string;
     }
 
-    export class Subscription {
+    class Subscription {
         private name;
         private session;
         private handler;
@@ -94,4 +92,10 @@ declare module "meteor/metemq:metemq" {
 
         private isCursor(c);
     }
+
+    var Things: Mongo.Collection<Object>;
+}
+
+declare module "meteor/metemq:metemq" {
+    export = MeteMQ;
 }

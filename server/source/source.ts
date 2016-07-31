@@ -82,20 +82,18 @@ export class Source {
         }
     }
 
-    send(topic: string, message: number)
-    send(topic: string, message: string)
     send(topic: string, message?: any) {
         if (typeof message === 'number')
             message = message.toString();
-        if (typeof message === 'object')
+        if (typeof message === 'object' || typeof message === 'boolean')
             message = JSON.stringify(message);
         if (typeof message === 'undefined')
             message = '';
 
-        this.queue.push({topic, message});
+        this.queue.push({ topic, message });
 
         if (this.publisher === null) {
-            this.publisher = setInterval( () => {
+            this.publisher = setInterval(() => {
                 let obj = this.queue.shift();
 
                 this.mqtt.publish(obj.topic, obj.message);
@@ -110,14 +108,23 @@ export class Source {
     }
 
     getSession(thingId: string): Session {
-        // Return existing session if it exists
-        if (_.has(this.sessions, thingId))
-            return this.sessions[thingId];
-        // There is no session exists. Create new session
+        // Throw error if there is no session for thing
+        if (!this.hasSession(thingId))
+            throw new Error(`There is no session for thing ${thingId}`);
+        return this.sessions[thingId];
+    }
+
+    hasSession(thingId: string): boolean {
+        return _.has(this.sessions, thingId);
+    }
+
+    createSession(thingId: string): Session {
+        // Throw error if there is session already exists
+        if (this.hasSession(thingId))
+            throw new Error(`Session for thing ${thingId} already exists`);
         let newSession = new Session(thingId, this);
         // Register session
         this.sessions[thingId] = newSession;
-
         return newSession;
     }
 

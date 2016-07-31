@@ -1,10 +1,11 @@
 import methodCall from '../../../../server/source/topics/methodCall';
-import { NO_SUCH_METHOD, METHOD_EXCEPTION } from '../../../../server/ddmq/ackCodes';
+import { CALLACK } from '../../../../server/ddmq/ackCodes';
 
 import { Source } from 'meteor/metemq:metemq';
 import { Mongo } from 'meteor/mongo';
 import { assert } from 'meteor/practicalmeteor:chai';
 import { createBroker } from '../../../helpers/broker';
+import { doneWhen } from '../../../helpers/doneWhen';
 
 describe('Topic [+thingId/$call/+method/+msgId]', function() {
     let broker;
@@ -51,6 +52,11 @@ describe('Topic [+thingId/$call/+method/+msgId]', function() {
             collection.remove({}, done);
         });
 
+        afterEach(function(done) {
+            doneWhen('clear', source, done);
+            source.mqtt.publish('clear', 'clear');
+        });
+
         it('should send $callack message with code NO_SUCH_METHOD', function(done) {
             const thingId = 't01';
             const msgId = 'm01';
@@ -62,7 +68,7 @@ describe('Topic [+thingId/$call/+method/+msgId]', function() {
             methodCall('', params, source);
 
             source.mqtt.once('message', function(topic, message) {
-                assert.equal(`${thingId}/$callack/${msgId}/${NO_SUCH_METHOD}`, topic);
+                assert.equal(`${thingId}/$callack/${msgId}/${CALLACK.NO_SUCH_METHOD}`, topic);
                 done();
             });
         });
@@ -85,7 +91,7 @@ describe('Topic [+thingId/$call/+method/+msgId]', function() {
             methodCall('', params, source);
 
             source.mqtt.once('message', function(topic, message) {
-                assert.equal(`${thingId}/$callack/${msgId}/${METHOD_EXCEPTION}`, topic);
+                assert.equal(`${thingId}/$callack/${msgId}/${CALLACK.METHOD_EXCEPTION}`, topic);
                 done();
             });
         });
@@ -138,10 +144,9 @@ describe('Topic [+thingId/$call/+method/+msgId]', function() {
             assert.doesNotThrow(() => methodCall('', params, source));
         });
 
-        it('should be able to deal with DB', function() {
+        it('should be able to deal with DB', function(done) {
             let params = {
-                thingId: 'dbThing',
-                msgId: 'dbdbdib'
+                thingId: 'dbThing'
             };
             const docId = 'doc01';
 
@@ -157,17 +162,19 @@ describe('Topic [+thingId/$call/+method/+msgId]', function() {
                 }
             });
 
-            params['method'] = 'insert';
+            params['method'] = params['msgId'] = 'insert';
             methodCall('1234', params, source);
             assert.equal(collection.find({ _id: docId }).count(), 1);
 
-            params['method'] = 'update';
+            params['method'] = params['msgId'] = 'update';
             methodCall('4321', params, source);
             assert.equal(collection.findOne({ _id: docId })['value'], 4321);
 
-            params['method'] = 'remove';
+            params['method'] = params['msgId'] = 'remove';
             methodCall('', params, source);
             assert.equal(collection.find({ _id: docId }).count(), 0);
+
+            doneWhen('dbThing/$callack/remove', source, done);
         });
 
         it('should send $callack message with string return value', function(done) {
