@@ -1,6 +1,6 @@
 Package.describe({
   name: 'metemq:metemq',
-  version: '0.1.0',
+  version: '0.2.0',
   // Brief, one-line summary of the package.
   summary: 'MeteMQ',
   // URL to the Git repository containing the source code for this package.
