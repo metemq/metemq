@@ -103,6 +103,8 @@ export class Subscription {
 
     getName(): string { return this.name; }
 
+    getParams(): Array<string | number> { return this.params }
+
     private fields2csv(fields: Object): string {
         let arr = [];
         // Collect user-defined fields in order

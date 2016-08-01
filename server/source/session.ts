@@ -37,5 +37,15 @@ export class Session {
         return _.has(this.subscriptions, name);
     }
 
+    replaceSubscription(subscription: Subscription) {
+        let name = subscription.getName();
+
+        this.subscriptions[name] = subscription;
+    }
+
+    getSubscription(name: string) {
+        return this.subscriptions[name];
+    }
+
     getThingId(): string { return this.thingId; }
 }
