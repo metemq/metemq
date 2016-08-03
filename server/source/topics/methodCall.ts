@@ -3,10 +3,17 @@ import { Source } from '../source';
 import { parseCSV, mkString } from '../../ddmq/util';
 import { CALLACK } from '../../ddmq/ackCodes';
 
-export default function subscriptionMsg(payload, params, source: Source) {
+export default function methodCall(payload, params, source: Source) {
     const thingId: string = params.thingId;
     const method: string = params.method;
     const msgId: string = params.msgId;
+
+    //Check the session is existed
+    if (!source.hasSession(thingId)) {
+        // Send $callack message with NO_SUCH_SESSION error code
+        source.send(`${thingId}/$callack/${msgId}/${CALLACK.NO_SUCH_SESSION}`, '');
+        return;
+    }
 
     // Check the method is defined
     if (!_.has(source.methodHandlers, method)) {
