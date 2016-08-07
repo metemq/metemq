@@ -1,6 +1,6 @@
 import { _ } from 'meteor/underscore';
 import { Source } from '../source';
-import { Things } from '../../things';
+import { Things } from 'meteor/metemq:metemq';
 import { parseCSV } from '../../ddmq/util';
 
 export default function dataBinding(payload: string, params, source: Source) {

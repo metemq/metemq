@@ -38,6 +38,8 @@
         "test/index.ts",
         "test/server/ddmq/util.spec.ts",
         "test/server/source/source.spec.ts",
+        "test/server/source/topics/dataBinding.test.ts",
+        "test/server/source/topics/index.ts",
         "test/server/source/topics/methodCall.test.ts",
         "test/server/source/topics/subscriptionMsg.test.ts",
         "test/server/source/topics/thingConnect.test.ts",
