@@ -1,6 +1,6 @@
 Package.describe({
   name: 'metemq:metemq',
-  version: '0.1.0',
+  version: '0.2.0',
   // Brief, one-line summary of the package.
   summary: 'MeteMQ',
   // URL to the Git repository containing the source code for this package.
@@ -13,14 +13,16 @@ Package.describe({
 Npm.depends({
   'mqtt': '1.12.0',
   'mqtt-emitter': '1.2.4',
-  'mosca': '1.4.1',    // For testing. Mosca v2 does not support node v0.10
-  'portfinder': '1.0.3'
+  'mosca': '2.0.2',    // For testing
+  'portfinder': '1.0.3',
+  'metemq-broker': '0.0.1'
 });
 
 Package.onUse(function(api) {
-  api.versionsFrom('1.3.4.1');
-  api.use('underscore@1.0.8')
-  api.use('barbatus:typescript@0.3.3');
+  api.versionsFrom('1.4');
+  api.use('underscore@1.0.8');
+  api.use('accounts-password'); // For checking password
+  api.use('barbatus:typescript@0.3.4_1');
 
   api.mainModule('client/index.ts', 'client');
   api.mainModule('server/index.ts', 'server');
@@ -29,7 +31,7 @@ Package.onUse(function(api) {
 Package.onTest(function(api) {
   api.use('metemq:metemq');
 
-  api.use('barbatus:typescript@0.3.3');
+  api.use('barbatus:typescript@0.3.4_1');
 
   api.use(['practicalmeteor:mocha', 'practicalmeteor:chai']);
 

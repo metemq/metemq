@@ -1,6 +1,7 @@
 // NPM packages
 import * as mqtt from 'mqtt';
 import MqttEmitter = require('mqtt-emitter');
+import { Broker } from 'metemq-broker';
 // Meteor packages
 import { Meteor } from 'meteor/meteor';
 import { _ } from 'meteor/underscore';
@@ -19,7 +20,15 @@ export class Source {
     private publisher = null;
     private queue = new Array();
 
+    /**
+     * MQTT socket
+     */
     mqtt: mqtt.Client;
+
+    /**
+     * MeteMQ Broker object. It's only defined if there is no brokerUrl
+     */
+    broker: Broker;
 
     /**
      * Object that stores publications
@@ -37,7 +46,19 @@ export class Source {
      */
     methodHandlers: { [method: string]: Function } = {};
 
-    constructor(brokerUrl: string, options?: SourceOptions) {
+    constructor(options?: SourceOptions) {
+        options = options || {};
+
+        // Set broker URL
+        let brokerUrl = options.brokerUrl;
+        if (!brokerUrl) {
+            // Create embedded MeteMQ Broker if there is no brokerUrl
+            let brokerOptions = options.brokerOptions || {};
+            this.broker = new Broker(brokerOptions);
+            // Set broker URL as localhost
+            brokerUrl = 'mqtt://localhost:' + (brokerOptions.port || '1883');
+        }
+
         // Overide default options with user defined options
         const extendedOptions = _.extend(DEFAULT_SOURCE_OPTIONS, options);
 
@@ -63,6 +84,8 @@ export class Source {
             throw new Error(`Fields of publication ${name} is not an array`);
         if (fields.length === 0)
             throw new Error(`Fields of publication ${name} should contain one field at least`);
+        if (name[0] === '$')
+            throw new Error(`Publication name '${name}' cannot starts with $`);
 
         this.publications[name] = new Publication(name, handler, fields);
     }
@@ -80,20 +103,18 @@ export class Source {
         }
     }
 
-    send(topic: string, message: number)
-    send(topic: string, message: string)
     send(topic: string, message?: any) {
         if (typeof message === 'number')
             message = message.toString();
-        if (typeof message === 'object')
+        if (typeof message === 'object' || typeof message === 'boolean')
             message = JSON.stringify(message);
         if (typeof message === 'undefined')
             message = '';
 
-        this.queue.push({topic, message});
+        this.queue.push({ topic, message });
 
         if (this.publisher === null) {
-            this.publisher = setInterval( () => {
+            this.publisher = setInterval(() => {
                 let obj = this.queue.shift();
 
                 this.mqtt.publish(obj.topic, obj.message);
@@ -108,15 +129,30 @@ export class Source {
     }
 
     getSession(thingId: string): Session {
-        // Return existing session if it exists
-        if (_.has(this.sessions, thingId))
-            return this.sessions[thingId];
-        // There is no session exists. Create new session
+        // Throw error if there is no session for thing
+        if (!this.hasSession(thingId))
+            throw new Error(`There is no session for thing ${thingId}`);
+        return this.sessions[thingId];
+    }
+
+    hasSession(thingId: string): boolean {
+        return _.has(this.sessions, thingId);
+    }
+
+    createSession(thingId: string): Session {
+        // Throw error if there is session already exists
+        if (this.hasSession(thingId))
+            throw new Error(`Session for thing ${thingId} already exists`);
         let newSession = new Session(thingId, this);
         // Register session
         this.sessions[thingId] = newSession;
-
         return newSession;
+    }
+
+    close() {
+        this.mqtt.end();
+        if (this.broker)
+            this.broker.close();
     }
 
     private initialize() {

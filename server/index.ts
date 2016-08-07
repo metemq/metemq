@@ -1,5 +1,3 @@
-export * from './source/index';
+export { Source } from './source/index';
 
-import { Things } from './things';
-
-console.log(`#Things: ${Things.find().count()}`);
+export { Things } from './things';

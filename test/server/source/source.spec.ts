@@ -35,8 +35,16 @@ describe('class Source', function() {
 
     describe('#constructor(brokerUrl, options)', function() {
         it('should connect to broker', function(done) {
-            source = new Source(`mqtt://localhost:${port}`);
-            broker.once('clientConnected', function() { done(); });
+            source = new Source({ brokerUrl: `mqtt://localhost:${port}` });
+            source.mqtt.once('connect', function() { done(); });
+        });
+
+        it('should create a broker if there is no brokerUrl', function(done) {
+            let s = new Source();
+            s.broker.on('ready', () => {
+                s.close();
+                done();
+            });
         });
     });
 
@@ -55,6 +63,12 @@ describe('class Source', function() {
         it('should throws error, if there are duplicated publications', function() {
             assert.throws(function() {
                 source.publish('somePub', handler, ['_id']);
+            });
+        });
+
+        it('should throws error, if name starts with $', function() {
+            assert.throws(function() {
+                source.publish('$nanana', () => { }, ['_id']);
             });
         });
     });

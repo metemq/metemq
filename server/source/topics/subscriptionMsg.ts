@@ -1,10 +1,7 @@
 import { _ } from 'meteor/underscore';
 import { Source } from '../source';
 import { Subscription } from '../subscription';
-import {
-    NO_SUCH_PUBLICATION_NAME,
-    DUPLICATED_SUBSCRIPTION
-} from '../../ddmq/ackCodes';
+import { SUBACK } from '../../ddmq/ackCodes';
 import { parseCSV } from '../../ddmq/util';
 
 export default function subscriptionMsg(payload, params, source: Source) {
@@ -14,7 +11,7 @@ export default function subscriptionMsg(payload, params, source: Source) {
     // Check unknown publish name
     if (!_.has(source.publications, name)) {
         // Send $suback message with NO_SUCH_PUBLICATION_NAME error code
-        source.send(`${thingId}/$suback/${name}`, NO_SUCH_PUBLICATION_NAME);
+        source.send(`${thingId}/$suback/${name}`, SUBACK.NO_SUCH_PUBLICATION_NAME);
         return;
     }
 
@@ -33,13 +30,14 @@ export default function subscriptionMsg(payload, params, source: Source) {
         for (let parameter of params) {
             // Check the already subscription is subscribing to evething
             if (parameter === '#') {
-                session.send(`$suback/${name}`, DUPLICATED_SUBSCRIPTION);
+                session.send(`$suback/${name}`, SUBACK.DUPLICATED_SUBSCRIPTION);
                 return;
             } else {
                 //Check the parameter equal already parameter
                 for (let pubParam of pubParams) {
                     if (pubParam === parameter) {
-                        session.send(`$suback/${name}`, DUPLICATED_SUBSCRIPTION);
+                        session.send(`$suback/${name}`, SUBACK.
+                          DUPLICATED_SUBSCRIPTION);
                         return;
                     }
                 }
