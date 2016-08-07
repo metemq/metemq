@@ -1,6 +1,7 @@
 // NPM packages
 import * as mqtt from 'mqtt';
 import MqttEmitter = require('mqtt-emitter');
+import { Broker } from 'metemq-broker';
 // Meteor packages
 import { Meteor } from 'meteor/meteor';
 import { _ } from 'meteor/underscore';
@@ -19,7 +20,15 @@ export class Source {
     private publisher = null;
     private queue = new Array();
 
+    /**
+     * MQTT socket
+     */
     mqtt: mqtt.Client;
+
+    /**
+     * MeteMQ Broker object. It's only defined if there is no brokerUrl
+     */
+    broker: Broker;
 
     /**
      * Object that stores publications
@@ -37,7 +46,19 @@ export class Source {
      */
     methodHandlers: { [method: string]: Function } = {};
 
-    constructor(brokerUrl: string, options?: SourceOptions) {
+    constructor(options?: SourceOptions) {
+        options = options || {};
+
+        // Set broker URL
+        let brokerUrl = options.brokerUrl;
+        if (!brokerUrl) {
+            // Create embedded MeteMQ Broker if there is no brokerUrl
+            let brokerOptions = options.brokerOptions || {};
+            this.broker = new Broker(brokerOptions);
+            // Set broker URL as localhost
+            brokerUrl = 'mqtt://localhost:' + (brokerOptions.port || '1883');
+        }
+
         // Overide default options with user defined options
         const extendedOptions = _.extend(DEFAULT_SOURCE_OPTIONS, options);
 
@@ -126,6 +147,12 @@ export class Source {
         // Register session
         this.sessions[thingId] = newSession;
         return newSession;
+    }
+
+    close() {
+        this.mqtt.end();
+        if (this.broker)
+            this.broker.close();
     }
 
     private initialize() {
