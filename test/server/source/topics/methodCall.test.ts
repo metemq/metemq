@@ -57,6 +57,27 @@ describe('Topic [+thingId/$call/+method/+msgId]', function() {
             source.mqtt.publish('clear', 'clear');
         });
 
+        it('should send $callack message with code SESSION_NOT_FOUND if there is no session for the thing', function(done) {
+            const thingId = 'unkownThing';
+            const msgId = 'msg0101';
+
+            source.methods({
+                'pureMethod': function() { }
+            });
+
+            const params = {
+                thingId: thingId,
+                method: 'pureMethod',
+                msgId: msgId
+            };
+            methodCall('', params, source);
+
+            source.mqtt.once('message', function(topic, message) {
+                assert.equal(`${thingId}/$callack/${msgId}/${CALLACK.SESSION_NOT_FOUND}`, topic);
+                done();
+            });
+        });
+
         it('should send $callack message with code NO_SUCH_METHOD', function(done) {
             const thingId = 't01';
             const msgId = 'm01';
@@ -65,6 +86,9 @@ describe('Topic [+thingId/$call/+method/+msgId]', function() {
                 method: 'undefinedMethod',
                 msgId: msgId
             };
+
+            source.createSession(thingId);
+
             methodCall('', params, source);
 
             source.mqtt.once('message', function(topic, message) {
@@ -76,6 +100,8 @@ describe('Topic [+thingId/$call/+method/+msgId]', function() {
         it('should send $callack message with code METHOD_EXCEPTION', function(done) {
             const thingId = 'lambThing';
             const msgId = 'uselessMsg';
+
+            source.createSession(thingId);
 
             source.methods({
                 'evilMethod': function() {
@@ -99,6 +125,8 @@ describe('Topic [+thingId/$call/+method/+msgId]', function() {
         it('should check types of return values', function() {
             const thingId = 'aThing';
             const msgId = 'm02';
+
+            source.createSession(thingId);
 
             source.methods({
                 'returnObject': () => { return { name: 'Handle me!' } },
@@ -150,6 +178,8 @@ describe('Topic [+thingId/$call/+method/+msgId]', function() {
             };
             const docId = 'doc01';
 
+            source.createSession(params.thingId);
+
             source.methods({
                 'insert': (value) => {
                     collection.insert({ _id: docId, value: value });
@@ -180,6 +210,8 @@ describe('Topic [+thingId/$call/+method/+msgId]', function() {
         it('should send $callack message with string return value', function(done) {
             const thingId = 'giveMeResult';
             const params = { thingId: thingId };
+
+            source.createSession(thingId);
 
             params['msgId'] = '1';
             params['method'] = 'returnString';
@@ -251,6 +283,5 @@ describe('Topic [+thingId/$call/+method/+msgId]', function() {
                 done();
             });
         });
-        // 데이터베이스 바꾼 결과 값 받기
     });
 });
