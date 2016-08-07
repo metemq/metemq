@@ -2,6 +2,7 @@ import subscriptionMsg from './subscriptionMsg';
 import thingDisconnect from './thingDisconnect';
 import methodCall from './methodCall';
 import dataBinding from './dataBinding';
+import thingConnect from './thingConnect';
 import { Source } from '../source';
 
 /**
@@ -18,5 +19,6 @@ export const topicHandlers: { [topic: string]: topicHandler } = {
     '+thingId/$sub/+name': subscriptionMsg,
     '+thingId/$disconnect': thingDisconnect,
     '+thingId/$call/+method/+msgId': methodCall,
-    '+thingId/$bind/+field/': dataBinding
+    '+thingId/$bind/+field/': dataBinding,
+    '+thingId/$connect/+msgId': thingConnect
 };

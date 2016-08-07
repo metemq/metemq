@@ -1,5 +1,10 @@
 # CHANGE LOG
 
+## 2016-07-31 release 0.2.0
+
+### New Features
+- User authentication
+
 ## 2016-07-16 release 0.1.0
 
 ### New Features

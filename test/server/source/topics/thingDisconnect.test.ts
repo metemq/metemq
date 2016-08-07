@@ -31,8 +31,8 @@ describe('Topic [+thingId/$disconnect]', function() {
     });
 
     before(function(done) {
-        source = new Source(`mqtt://localhost:${port}`);
-        broker.once('clientConnected', function() { done(); });
+        source = new Source({ brokerUrl: `mqtt://localhost:${port}` });
+        source.mqtt.once('connect', function() { done(); });
     });
 
     after(function(done) {
@@ -54,6 +54,11 @@ describe('Topic [+thingId/$disconnect]', function() {
         // Reset collection
         before(function(done) {
             collection.remove({}, done);
+        });
+
+        before(function() {
+            source.createSession('thing01');
+            source.createSession('thing02');
         });
 
         // Publish test publication

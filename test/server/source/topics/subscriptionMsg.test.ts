@@ -1,4 +1,5 @@
 import subscriptionMsg from '../../../../server/source/topics/subscriptionMsg';
+import { SUBACK } from '../../../../server/ddmq/ackCodes';
 
 import { Source } from 'meteor/metemq:metemq';
 import { Mongo } from 'meteor/mongo';
@@ -28,12 +29,12 @@ describe('Topic [+thingId/$sub/+name]', function() {
     });
 
     before(function(done) {
-        source = new Source(`mqtt://localhost:${port}`);
-        broker.once('clientConnected', function() { done(); });
+        source = new Source({ brokerUrl: `mqtt://localhost:${port}` });
+        source.mqtt.once('connect', function() { done(); });
     });
 
-    after(function(done) {
-        source.mqtt.end(false, () => done());
+    after(function() {
+        source.close();
     });
 
     // Close broker after tests
@@ -50,10 +51,13 @@ describe('Topic [+thingId/$sub/+name]', function() {
         const payload = 'one,2,3.456';
         const params = ['one', 2, 3.456];
 
-
         // Reset collection
         before(function(done) {
             collection.remove({}, done);
+        });
+
+        before(function() {
+            source.createSession(thingId);
         });
 
         // Publish test publication
@@ -83,9 +87,8 @@ describe('Topic [+thingId/$sub/+name]', function() {
         let documentId;
 
         it('should send $added messages to the thing when a document is added', function(done) {
-            broker.once('published', function(packet, client) {
-                let topic = packet.topic;
-                let payload = packet.payload.toString();
+            source.mqtt.once('message', function(topic, message) {
+                let payload = message.toString();
                 assert.equal(topic, `${thingId}/${name}/$added`);
                 assert.equal(payload, `${documentId},,123`);
                 done();
@@ -95,9 +98,8 @@ describe('Topic [+thingId/$sub/+name]', function() {
         });
 
         it('should send $changed messages to the thing when a document is changed', function(done) {
-            broker.once('published', function(packet, client) {
-                let topic = packet.topic;
-                let payload = packet.payload.toString();
+            source.mqtt.once('message', function(topic, message) {
+                let payload = message.toString();
                 assert.equal(topic, `${thingId}/${name}/$changed`);
                 assert.equal(payload, ',thingName,');
                 done();
@@ -107,9 +109,8 @@ describe('Topic [+thingId/$sub/+name]', function() {
         });
 
         it('should not send $changed message when a field not in user-defined fields is changed', function(done) {
-            broker.once('published', function(packet, client) {
-                let topic = packet.topic;
-                let payload = packet.payload.toString();
+            source.mqtt.once('message', function(topic, message) {
+                let payload = message.toString();
                 assert.equal(topic, `${thingId}/${name}/$changed`);
                 assert.equal(payload, ',,4321');
                 done();
@@ -120,9 +121,8 @@ describe('Topic [+thingId/$sub/+name]', function() {
         })
 
         it('should send $removed messages to the thing when a document is removed', function(done) {
-            broker.once('published', function(packet, client) {
-                let topic = packet.topic;
-                let payload = packet.payload.toString();
+            source.mqtt.once('message', function(topic, message) {
+                let payload = message.toString();
                 assert.equal(topic, `${thingId}/${name}/$removed`);
                 assert.equal(payload, documentId);
                 done();
@@ -131,7 +131,7 @@ describe('Topic [+thingId/$sub/+name]', function() {
             collection.remove({ _id: documentId });
         });
 
-        describe('publish handler', function() {
+        describe('Publish handler', function() {
             it('should be executed in context of subscription', function(done) {
                 let session = source.sessions[thingId];
 
@@ -166,6 +166,30 @@ describe('Topic [+thingId/$sub/+name]', function() {
                 }, ['_id']);
 
                 subscriptionMsg('one,2,3.456', { thingId: thingId, name: 'param.test' }, source);
+            });
+
+            describe('Handler throwing error', function() {
+                it('should send INTERNAL_SERVER_ERROR code when publish function throws error', function(done) {
+
+                    source.publish('evilPub', function() {
+                        throw new Error('Do not subscribe me!!!');
+                    }, ['_id']);
+
+                    source.mqtt.once('message', function(topic, message) {
+                        let payload = message.toString();
+                        assert.equal(topic, `${thingId}/$suback/evilPub`);
+                        assert.equal(payload, SUBACK.INTERNAL_SERVER_ERROR);
+                        done();
+                    });
+
+                    subscriptionMsg('', { thingId: thingId, name: 'evilPub' }, source);
+                });
+
+                it('should unregister subscription from session of the thing', function() {
+                    let session = source.sessions[thingId];
+                    let subscription = session.subscriptions['evilPub'];
+                    assert.isUndefined(subscription);
+                });
             });
 
             it('should throw error when return value is not a Cursor', function() {
