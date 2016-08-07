@@ -14,7 +14,7 @@ export const SUBACK = {
 export const CALLACK = {
   NO_SUCH_METHOD:   0,
   METHOD_EXCEPTION: 1,
-  NO_SUCH_SESSION:  2
+  SESSION_NOT_FOUND:  2
 };
 
 /*****************************

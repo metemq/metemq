@@ -11,7 +11,7 @@ export default function methodCall(payload, params, source: Source) {
     //Check the session is existed
     if (!source.hasSession(thingId)) {
         // Send $callack message with NO_SUCH_SESSION error code
-        source.send(`${thingId}/$callack/${msgId}/${CALLACK.NO_SUCH_SESSION}`, '');
+        source.send(`${thingId}/$callack/${msgId}/${CALLACK.SESSION_NOT_FOUND}`, '');
         return;
     }
 
