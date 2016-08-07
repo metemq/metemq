@@ -33,7 +33,7 @@ describe('Topic [+thingId/$connect/+msgId]', function() {
     });
 
     before(function(done) {
-        source = new Source(`mqtt://localhost:${port}`);
+        source = new Source({ brokerUrl: `mqtt://localhost:${port}` });
         source.mqtt.once('connect', function() { done(); });
     });
 

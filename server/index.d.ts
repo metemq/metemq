@@ -24,7 +24,7 @@ declare namespace MeteMQ {
         methodHandlers: {
             [method: string]: Function;
         };
-        constructor(brokerUrl: string, options?: SourceOptions);
+        constructor(options?: SourceOptions);
         publish(name: string, handler: PublishHandler, fields: string[]): void;
         methods(methods: {
             [name: string]: Function;
@@ -48,6 +48,8 @@ declare namespace MeteMQ {
 
     interface SourceOptions {
         serverId?: string;
+        brokerUrl?: string;
+        brokerOptions?: any;
     }
 
     class Session {

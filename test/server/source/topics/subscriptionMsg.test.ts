@@ -29,12 +29,12 @@ describe('Topic [+thingId/$sub/+name]', function() {
     });
 
     before(function(done) {
-        source = new Source(`mqtt://localhost:${port}`);
+        source = new Source({ brokerUrl: `mqtt://localhost:${port}` });
         source.mqtt.once('connect', function() { done(); });
     });
 
-    after(function(done) {
-        source.mqtt.end(false, () => done());
+    after(function() {
+        source.close();
     });
 
     // Close broker after tests
