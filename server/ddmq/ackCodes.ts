@@ -12,9 +12,10 @@ export const SUBACK = {
  * $callack CODES
  *****************************/
 export const CALLACK = {
-  NO_SUCH_METHOD:   0,
-  METHOD_EXCEPTION: 1,
-  SESSION_NOT_FOUND:  2
+  OK:                 0,
+  NO_SUCH_METHOD:     1,
+  METHOD_EXCEPTION:   2,
+  SESSION_NOT_FOUND:  3
 };
 
 /*****************************

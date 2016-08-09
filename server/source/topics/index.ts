@@ -19,6 +19,6 @@ export const topicHandlers: { [topic: string]: topicHandler } = {
     '+thingId/$sub/+name': subscriptionMsg,
     '+thingId/$disconnect': thingDisconnect,
     '+thingId/$call/+method/+msgId': methodCall,
-    '+thingId/$bind/+field/': dataBinding,
+    '+thingId/$bind/+field': dataBinding,
     '+thingId/$connect/+msgId': thingConnect
 };

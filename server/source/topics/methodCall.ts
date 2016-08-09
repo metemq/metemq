@@ -52,7 +52,7 @@ export default function methodCall(payload, params, source: Source) {
     let csvResult = mkString(result);
 
     // Send $callack message with return values of the method
-    source.send(`${thingId}/$callack/${msgId}`, csvResult);
+    source.send(`${thingId}/$callack/${msgId}/${CALLACK.OK}`, csvResult);
 }
 
 function resultTypeCheck(result): boolean {
