@@ -204,7 +204,7 @@ describe('Topic [+thingId/$call/+method/+msgId]', function() {
             methodCall('', params, source);
             assert.equal(collection.find({ _id: docId }).count(), 0);
 
-            doneWhen('dbThing/$callack/remove', source, done);
+            doneWhen('dbThing/$callack/remove/0', source, done);
         });
 
         it('should send $callack message with string return value', function(done) {
@@ -218,7 +218,7 @@ describe('Topic [+thingId/$call/+method/+msgId]', function() {
             methodCall('', params, source);
             source.mqtt.once('message', function(topic, message) {
                 let payload = message.toString();
-                assert.equal(topic, `${thingId}/$callack/1`);
+                assert.equal(topic, `${thingId}/$callack/1/0`);
                 assert.strictEqual(payload, 'one');
                 done();
             });
@@ -233,7 +233,7 @@ describe('Topic [+thingId/$call/+method/+msgId]', function() {
             methodCall('', params, source);
             source.mqtt.once('message', function(topic, message) {
                 let payload = message.toString();
-                assert.equal(topic, `${thingId}/$callack/2`);
+                assert.equal(topic, `${thingId}/$callack/2/0`);
                 assert.strictEqual(payload, '1234');
                 done();
             });
@@ -248,7 +248,7 @@ describe('Topic [+thingId/$call/+method/+msgId]', function() {
             methodCall('', params, source);
             source.mqtt.once('message', function(topic, message) {
                 let payload = message.toString();
-                assert.equal(topic, `${thingId}/$callack/3`);
+                assert.equal(topic, `${thingId}/$callack/3/0`);
                 assert.strictEqual(payload, 'one,two,three');
                 done();
             });
@@ -263,7 +263,7 @@ describe('Topic [+thingId/$call/+method/+msgId]', function() {
             methodCall('', params, source);
             source.mqtt.once('message', function(topic, message) {
                 let payload = message.toString();
-                assert.equal(topic, `${thingId}/$callack/4`);
+                assert.equal(topic, `${thingId}/$callack/4/0`);
                 assert.strictEqual(payload, '1,2,3.456');
                 done();
             });
@@ -278,7 +278,7 @@ describe('Topic [+thingId/$call/+method/+msgId]', function() {
             methodCall('', params, source);
             source.mqtt.once('message', function(topic, message) {
                 let payload = message.toString();
-                assert.equal(topic, `${thingId}/$callack/5`);
+                assert.equal(topic, `${thingId}/$callack/5/0`);
                 assert.strictEqual(payload, 'one,2,3.456');
                 done();
             });
