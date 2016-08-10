@@ -64,7 +64,9 @@ export class Source {
 
         // Setup MQTT client options
         const mqttOptions: mqtt.ClientOptions = {
-            clientId: extendedOptions.serverId
+            clientId: extendedOptions.serverId,
+            username: extendedOptions.username,
+            password: extendedOptions.password
         }
 
         // Connect to MQTT broker
