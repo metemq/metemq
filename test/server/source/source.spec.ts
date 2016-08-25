@@ -34,8 +34,13 @@ describe('class Source', function() {
     });
 
     describe('#constructor(brokerUrl, options)', function() {
-        it('should connect to broker', function(done) {
-            source = new Source({ brokerUrl: `mqtt://localhost:${port}` });
+        it('should connect to broker by username, password', function(done) {
+            source = new Source({
+                brokerUrl: `mqtt://localhost:${port}`,
+                username: `localhost`,
+                password: `localhost`
+            });
+
             source.mqtt.once('connect', function() { done(); });
         });
 
