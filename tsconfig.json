@@ -14,12 +14,14 @@
     "compileOnSave": false,
     "files": [
         "client/index.ts",
+        "server/collections.ts",
         "server/config.ts",
         "server/ddmq/ackCodes.ts",
         "server/ddmq/util.ts",
         "server/index.d.ts",
         "server/index.ts",
         "server/source/index.ts",
+        "server/source/methods.ts",
         "server/source/publication.ts",
         "server/source/session.ts",
         "server/source/source.ts",
@@ -31,7 +33,6 @@
         "server/source/topics/subscriptionMsg.ts",
         "server/source/topics/thingConnect.ts",
         "server/source/topics/thingDisconnect.ts",
-        "server/things.ts",
         "test/helpers/broker.ts",
         "test/helpers/doneWhen.ts",
         "test/helpers/thing.ts",
@@ -51,7 +52,8 @@
         "typings/globals/node/index.d.ts",
         "typings/globals/underscore/index.d.ts",
         "typings/index.d.ts",
-        "typings/manual_typings/mqtt-emitter/index.d.ts"
+        "typings/manual_typings/mqtt-emitter/index.d.ts",
+        "typings/manual_typings/shortid/index.d.ts"
     ],
     "atom": {
         "rewriteTsconfig": true
