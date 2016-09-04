@@ -33,12 +33,9 @@ describe('Topic [+thingId/$sub/+name]', function() {
         source.mqtt.once('connect', function() { done(); });
     });
 
-    after(function() {
-        source.close();
-    });
-
     // Close broker after tests
     after(function() {
+        source.close();
         broker.close();
     });
 
@@ -48,7 +45,7 @@ describe('Topic [+thingId/$sub/+name]', function() {
         const name = 'myPub';
         const fields = ['_id', 'name', 'value'];
         const thingId = 'myThing01';
-        const payload = 'one,2,3.456';
+        const payload = '["one",2,3.456]';
         const params = ['one', 2, 3.456];
 
         // Reset collection
@@ -90,7 +87,7 @@ describe('Topic [+thingId/$sub/+name]', function() {
             source.mqtt.once('message', function(topic, message) {
                 let payload = message.toString();
                 assert.equal(topic, `${thingId}/${name}/$added`);
-                assert.equal(payload, `${documentId},,123`);
+                assert.equal(payload, `["${documentId}",null,123]`);
                 done();
             });
             // Insert new document into test collection
@@ -101,7 +98,7 @@ describe('Topic [+thingId/$sub/+name]', function() {
             source.mqtt.once('message', function(topic, message) {
                 let payload = message.toString();
                 assert.equal(topic, `${thingId}/${name}/$changed`);
-                assert.equal(payload, ',thingName,');
+                assert.equal(payload, '[null,"thingName",null]');
                 done();
             });
             // Update document that inserted before
@@ -112,7 +109,7 @@ describe('Topic [+thingId/$sub/+name]', function() {
             source.mqtt.once('message', function(topic, message) {
                 let payload = message.toString();
                 assert.equal(topic, `${thingId}/${name}/$changed`);
-                assert.equal(payload, ',,4321');
+                assert.equal(payload, '[null,null,4321]');
                 done();
             });
             // Update document that inserted before
@@ -165,7 +162,7 @@ describe('Topic [+thingId/$sub/+name]', function() {
                     return collection.find();
                 }, ['_id']);
 
-                subscriptionMsg('one,2,3.456', { thingId: thingId, name: 'param.test' }, source);
+                subscriptionMsg('["one",2,3.456]', { thingId: thingId, name: 'param.test' }, source);
             });
 
             describe('Handler throwing error', function() {
