@@ -2,7 +2,7 @@ import { _ } from 'meteor/underscore';
 import { Mongo } from 'meteor/mongo';
 import { Session } from './session';
 import { Publication } from './publication';
-import { mkString } from '../ddmq/util';
+import { stringifyJSON } from '../ddmq/util';
 import { SUBACK } from '../ddmq/ackCodes';
 /**
  * Represents one thing session's one subscription.
@@ -76,7 +76,7 @@ export class Subscription {
 
     added(fields: Object) {
         // Convert fields to CSV string
-        let csvString = this.fields2csv(fields);
+        let csvString = this.collectFieldsInOrder(fields);
         // If length of CSV string is smaller than length of user-defined fields,
         // then csvString only contrains comma
         // That means we don't have to send message to the thing
@@ -87,13 +87,13 @@ export class Subscription {
 
     changed(fields: Object) {
         // Convert fields to CSV string
-        let csvString = this.fields2csv(fields);
+        let fieldValueArray = this.collectFieldsInOrder(fields);
         // If length of CSV string is smaller than length of user-defined fields,
         // then csvString only contrains comma
         // That means we don't have to send message to the thing
-        if (csvString.length < this.publication.fields.length) return;
+        if (this.isAllNull(fieldValueArray)) return;
         // Send $changed message to the thing
-        this.send('$changed', csvString);
+        this.send('$changed', stringifyJSON(fieldValueArray));
     }
 
     removed(id: string) {
@@ -115,7 +115,13 @@ export class Subscription {
 
     getName(): string { return this.name; }
 
-    private fields2csv(fields: Object): string {
+    private isAllNull(arr: any[]): boolean {
+        for (let value of arr)
+            if (value) return false;
+        return true;
+    }
+
+    private collectFieldsInOrder(fields: Object): any[] {
         let arr = [];
         // Collect user-defined fields in order
         for (let field of this.publication.fields)
@@ -124,7 +130,7 @@ export class Subscription {
         if (!this.isSimpleArray(arr))
             throw new Error(`Cursor which is returned by publish ${this.publication.name} should only contain string or number fields`);
         // Convert array to CSV string
-        return mkString(arr);
+        return arr;
     }
 
     /**
