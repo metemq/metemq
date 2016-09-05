@@ -34,8 +34,8 @@ describe('Topic [+thingId/$call/+method/+msgId]', function() {
         source.mqtt.once('connect', function() { done(); });
     });
 
-    after(function(done) {
-        source.mqtt.end(false, () => done());
+    after(function() {
+        source.close();
     });
 
     // Close broker after tests
