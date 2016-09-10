@@ -1,7 +1,7 @@
 import { ThingsInbox } from 'meteor/metemq:metemq';
 import shortid = require('shortid');
 
-export function act(action, userId, thingId, params) {
+export function act(action, thingId, userId, params) {
     let msgId = shortid.generate();
 
     let obj = {
@@ -34,17 +34,17 @@ export function pending(msgId, thingId, progress) {
         return 'reject';
     }
 
-    ThingsInbox.update({ _id: thingId }, { $set: { progress: progress, state: 'pending' } });
+    ThingsInbox.update({ _id: msgId }, { $set: { progress: progress, state: 'pending' } });
 
     return 'done';
 }
 
-export function applied(msgId, thingId) {
+export function applied(msgId, thingId, result?) {
     if (thingId !== this.thingId) {
         return 'reject';
     }
 
-    ThingsInbox.update({ _id: thingId }, { $set: { progress: 100, state: 'applied' } });
+    ThingsInbox.update({ _id: msgId }, { $set: { progress: 100, state: 'applied', result: result } });
 
     return 'done';
 }

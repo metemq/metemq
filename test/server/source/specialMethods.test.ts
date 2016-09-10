@@ -3,6 +3,7 @@ import { Source, ThingsInbox } from 'meteor/metemq:metemq';
 import { createBroker } from '../../helpers/broker';
 import methodCall from '../../../server/source/topics/methodCall';
 
+
 describe('Special Methods', function() {
     let broker;
     let source: Source;
@@ -10,6 +11,7 @@ describe('Special Methods', function() {
     let method: string;
     let thingId: string;
     let wrongThingId: string;
+    let msgId;
 
     // Wait for source to connect to broker
     this.timeout(10000);
@@ -48,18 +50,19 @@ describe('Special Methods', function() {
         broker.close();
     });
 
-    describe('#/metemq/act', function() {
+    describe('Method: _metemq_act', function() {
         let params = "on,t01,u01,[]";
-        let msgId;
 
         before(function() {
-            method = '_metemq_act';
-            source.mqtt.publish(`${thingId}/$call/${method}/11`, params);
+            let obj = {
+                thingId: "t01",
+                method: '_metemq_act',
+                msgId: '11'
+            }
+            methodCall(params, obj, source);
 
             source.mqtt.once('message', function(topic, message) {
                 msgId = message.toString();
-
-                console.log(msgId);
             })
         })
 
@@ -74,4 +77,171 @@ describe('Special Methods', function() {
             done();
         });
     });
+
+    describe('Method: _metemq_pending', function() {
+        let msg;
+
+        beforeEach(function() {
+            source.mqtt.once('message', function(topic, message) {
+                msg = message.toString();
+            })
+        })
+
+        it('Should pending method is called with correct syntex, doc is updated to recieved info', function(done) {
+            let params = `${msgId},${thingId},50`;
+            let obj = {
+                thingId: thingId,
+                method: '_metemq_pending',
+                msgId: '12'
+            }
+            methodCall(params, obj, source);
+
+            let doc = ThingsInbox.findOne({ _id: msgId });
+
+            let interval = setInterval(function() {
+                assert.equal('done', msg);
+                assert.equal('pending', doc.state);
+                assert.equal(50, doc.progress);
+
+                done();
+
+                clearInterval(interval);
+            }, 1000);
+        })
+
+        it('Should pending method is called with uncorrect syntex, called method is rejected', function(done) {
+            let params = `${msgId},${thingId},200`;
+            let obj = {
+                thingId: thingId,
+                method: '_metemq_pending',
+                msgId: '13'
+            }
+            methodCall(params, obj, source);
+
+
+            let interval = setInterval(function() {
+                assert.equal('reject', msg);
+
+                done();
+                msg = undefined;
+
+                clearInterval(interval);
+            }, 1000);
+        })
+
+        it('Should pending method is called with mismatch thingId, called method is rejected', function(done) {
+            let params = `${msgId},${wrongThingId},50`;
+            let obj = {
+                thingId: thingId,
+                method: '_metemq_pending',
+                msgId: '14'
+            }
+            methodCall(params, obj, source);
+
+            let interval = setInterval(function() {
+                assert.equal('reject', msg);
+
+                done();
+
+                clearInterval(interval);
+            }, 1000);
+        })
+    })
+
+    describe('Method: _metemq_applied', function() {
+        let msg;
+
+        beforeEach(function() {
+            source.mqtt.once('message', function(topic, message) {
+                msg = message.toString();
+            })
+        })
+
+        it('Should applied method is called, state is updated to applied', function(done) {
+            let params = `${msgId},${thingId}`;
+            let obj = {
+                thingId: thingId,
+                method: '_metemq_applied',
+                msgId: '15'
+            }
+            methodCall(params, obj, source);
+
+            let doc = ThingsInbox.findOne({ _id: msgId });
+
+            let interval = setInterval(function() {
+                assert.equal('done', msg);
+                assert.equal('applied', doc.state);
+
+                done();
+
+                clearInterval(interval);
+            }, 1000);
+        })
+
+        it('Should applied method is called with mismatch thingId, called method is rejected', function(done) {
+            let params = `${msgId},${wrongThingId}`;
+            let obj = {
+                thingId: thingId,
+                method: '_metemq_applied',
+                msgId: '16'
+            }
+            methodCall(params, obj, source);
+
+            let interval = setInterval(function() {
+                assert.equal('reject', msg);
+
+                done();
+
+                clearInterval(interval);
+            }, 1000);
+        })
+    })
+    describe('Method: _metemq_rejected', function() {
+        let msg;
+
+        beforeEach(function() {
+            source.mqtt.once('message', function(topic, message) {
+                msg = message.toString();
+            })
+        })
+
+        it('Should rejected method is called, state is updated to rejected', function(done) {
+            let params = `${msgId},${thingId}`;
+            let obj = {
+                thingId: thingId,
+                method: '_metemq_rejected',
+                msgId: '17'
+            }
+            methodCall(params, obj, source);
+
+            let doc = ThingsInbox.findOne({ _id: msgId });
+
+            let interval = setInterval(function() {
+                assert.equal('done', msg);
+                assert.equal('rejected', doc.state);
+
+                done();
+
+                clearInterval(interval);
+            }, 1000);
+        })
+
+        it('Should rejected method is called with mismatch thingId, called method is rejected', function(done) {
+            let params = `${msgId},${wrongThingId}`;
+            let obj = {
+                thingId: thingId,
+                method: '_metemq_rejected',
+                msgId: '18'
+            }
+            methodCall(params, obj, source);
+
+            let interval = setInterval(function() {
+                assert.equal('reject', msg);
+
+                done();
+
+                clearInterval(interval);
+            }, 1000);
+        })
+    })
 });

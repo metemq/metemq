@@ -7,7 +7,7 @@ import { Meteor } from 'meteor/meteor';
 import { _ } from 'meteor/underscore';
 // My packages
 import { topicHandler, topicHandlers } from './topics/index';
-import { act, pending, applied } from './methods';
+import { act, pending, applied, rejected } from './methods';
 import {
     DEFAULT_SOURCE_OPTIONS,
     SourceOptions
@@ -190,7 +190,8 @@ export class Source {
         this.methods({
             '_metemq_act': act,
             '_metemq_pending': pending,
-            '_metemq_applied': applied
+            '_metemq_applied': applied,
+            '_metemq_rejected': rejected
         });
     }
 
