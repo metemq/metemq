@@ -76,7 +76,11 @@ export class Source {
 
         this.registerHandlers();
 
-        this.publishSpecial('$inbox', ThingsInbox, ['#']);
+        this.publishSpecial('$inbox', function() {
+            let thingId = this.thingId;
+
+            return ThingsInbox.find({ thingId: thingId, state: 'initial' });
+        }, ['_id', 'action', 'params']);
 
         this.registerSpecialMethods();
     }

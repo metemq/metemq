@@ -2,6 +2,7 @@ import { assert } from 'meteor/practicalmeteor:chai';
 import { Source, ThingsInbox } from 'meteor/metemq:metemq';
 import { createBroker } from '../../helpers/broker';
 import methodCall from '../../../server/source/topics/methodCall';
+import subscriptionMsg from '../../../server/source/topics/subscriptionMsg';
 
 
 describe('Special Methods', function() {
@@ -43,6 +44,15 @@ describe('Special Methods', function() {
         source.createSession(wrongThingId);
 
         done();
+    })
+
+    before(function() {
+        let thing = {
+            thingId: thingId,
+            name: '$inbox'
+        }
+
+        subscriptionMsg('#', thing, source);
     })
 
     // Close broker after tests
