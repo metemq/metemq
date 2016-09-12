@@ -1,14 +1,14 @@
 import { ThingsInbox } from 'meteor/metemq:metemq';
 import shortid = require('shortid');
 
-export function act(action, thingId, userId, params) {
+export function act(action, thingId, ...params) {
     let msgId = shortid.generate();
 
     let obj = {
         _id: msgId,
         action: action,
         params: params,
-        userId: userId,
+        userId: this.userId || null,
         thingId: thingId,
         result: [],
         state: 'initial'
