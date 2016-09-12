@@ -1,5 +1,12 @@
 # CHANGE LOG
 
+## 2016-08-07 release 0.4.0
+
+### Breaking Changes
+- Now DDMQ data format is JSON, not CSV.
+
+
+
 ## 2016-08-07 release 0.3.0
 
 ### New Features
