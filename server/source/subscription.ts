@@ -97,8 +97,7 @@ export class Subscription {
     }
 
     removed(id: string) {
-        if (_.contains(this.publication.fields, '_id'))
-            this.send('$removed', id);
+        this.send('$removed', id);
     }
 
     error(e: Error) {
