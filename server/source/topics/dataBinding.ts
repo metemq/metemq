@@ -1,7 +1,7 @@
 import { _ } from 'meteor/underscore';
 import { Source } from '../source';
 import { Things } from 'meteor/metemq:metemq';
-import { parseCSV } from '../../ddmq/util';
+import { parseJSON } from '../../ddmq/util';
 
 export default function dataBinding(payload: string, params, source: Source) {
     let thingId: string = params.thingId;
@@ -25,7 +25,7 @@ export default function dataBinding(payload: string, params, source: Source) {
 }
 
 function parseValue(payload: string): number | string | Array<number | string> {
-    let value = parseCSV(payload);
+    let value = parseJSON(payload);
 
     if (value.length === 1) return value[0];
     else return value;

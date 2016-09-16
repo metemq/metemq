@@ -37,16 +37,13 @@ describe('Topic [+thingId/$connect/+msgId]', function() {
         source.mqtt.once('connect', function() { done(); });
     });
 
-    after(function() {
-        source.close();
-    });
-
     // Close broker after tests
     after(function() {
+        source.close();
         broker.close();
     });
 
-    describe('Handler: thingDisconnect', function() {
+    describe('Handler: thingConnect', function() {
         const collectionName = 'test.thingConnect';
         const collection = new Mongo.Collection(collectionName);
 

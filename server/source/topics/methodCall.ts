@@ -1,6 +1,6 @@
 import { _ } from 'meteor/underscore';
 import { Source } from '../source';
-import { parseCSV, mkString } from '../../ddmq/util';
+import { parseJSON, stringifyJSON } from '../../ddmq/util';
 import { CALLACK } from '../../ddmq/ackCodes';
 
 export default function methodCall(payload, params, source: Source) {
@@ -24,7 +24,7 @@ export default function methodCall(payload, params, source: Source) {
 
     // Configure variables to run method handler
     const methodHandler = source.methodHandlers[method];
-    const methodParams = parseCSV(payload);
+    const methodParams = parseJSON(payload);    /* TODO: should check type of methodParams is array*/
     const context = { thingId: thingId };
 
     let result: undefined | string | number | Array<string | number>;
@@ -49,7 +49,7 @@ export default function methodCall(payload, params, source: Source) {
         throw new Error(`Type of return value of method '${method}' should be string, number, or Array of string & number`);
 
     // Convert result to CSV string
-    let csvResult = mkString(result);
+    let csvResult = stringifyJSON(result);
 
     // Send $callack message with return values of the method
     source.send(`${thingId}/$callack/${msgId}/${CALLACK.OK}`, csvResult);

@@ -2,7 +2,7 @@ import { _ } from 'meteor/underscore';
 import { Source } from '../source';
 import { Subscription } from '../subscription';
 import { SUBACK } from '../../ddmq/ackCodes';
-import { parseCSV } from '../../ddmq/util';
+import { parseJSON } from '../../ddmq/util';
 
 export default function subscriptionMsg(payload, params, source: Source) {
     let thingId: string = params.thingId;
@@ -18,7 +18,7 @@ export default function subscriptionMsg(payload, params, source: Source) {
     // Get publish handler of name
     let publication = source.publications[name];
     // Parse thing's comma-separated subscription parameters
-    let pubParams = parseCSV(payload);
+    let pubParams = parseJSON(payload);
     // Get thing's session
     let session = source.getSession(thingId);
     /* TODO:

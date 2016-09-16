@@ -37,12 +37,9 @@ describe('Topic [+thingId/$bind/+field]', function() {
         source.mqtt.once('connect', function() { done(); });
     });
 
-    after(function() {
-        source.close();
-    });
-
     // Close broker after tests
     after(function() {
+        source.close();
         broker.close();
     });
 
@@ -100,12 +97,12 @@ describe('Topic [+thingId/$bind/+field]', function() {
                 thingId: thingId,
                 field: field
             };
-            const payload = 'abcd';
+            const payload = '"abcd"';
 
             dataBinding(payload, params, source);
 
             const thing = Things.findOne({ _id: thingId });
-            assert.strictEqual(thing[field], payload);
+            assert.strictEqual(thing[field], 'abcd');
         });
 
         it('should bind Array<number|string>', function() {
@@ -114,7 +111,7 @@ describe('Topic [+thingId/$bind/+field]', function() {
                 thingId: thingId,
                 field: field
             };
-            const payload = 'abcd,1234,4.321';
+            const payload = '["abcd",1234,4.321]';
 
             dataBinding(payload, params, source);
 

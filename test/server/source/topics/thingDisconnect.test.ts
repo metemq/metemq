@@ -35,12 +35,9 @@ describe('Topic [+thingId/$disconnect]', function() {
         source.mqtt.once('connect', function() { done(); });
     });
 
-    after(function() {
-        source.close();
-    });
-
     // Close broker after tests
     after(function() {
+        source.close();
         broker.close();
     });
 

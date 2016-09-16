@@ -1,6 +1,6 @@
 Package.describe({
   name: 'metemq:metemq',
-  version: '0.3.2',
+  version: '0.4.0',
   // Brief, one-line summary of the package.
   summary: 'MeteMQ',
   // URL to the Git repository containing the source code for this package.
@@ -13,7 +13,7 @@ Package.describe({
 Npm.depends({
   'mqtt': '1.12.0',
   'mqtt-emitter': '1.2.4',
-  'mosca': '2.0.2',    // For testing
+  'mosca': '2.1.0',    // For testing
   'portfinder': '1.0.3',
   'metemq-broker': '0.0.1'
 });

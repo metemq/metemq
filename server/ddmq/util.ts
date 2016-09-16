@@ -6,28 +6,26 @@ import { _ } from 'meteor/underscore';
  * @param csvString comma-separated string
  * @returns         Array of values
  */
-export function parseCSV(csvString: string): Array<string | number> {
-    // return empty array for empty string
-    if (!csvString.trim())
-        return [];
+export function parseJSON(jsonString: string): undefined | number | string | Array<string | number> {
+    // return empty array if string is empty
+    if (!jsonString.trim()) return undefined;
 
-    let params: string[] = csvString.trim().split(',');
-    let ret: Array<string | number> = [];
+    let ret;
 
-    for (let param of params) {
-        let parsed = parseFloat(param);
-        // If param is string, then parsed is NaN
-        if (isNaN(parsed)) {
-            let str = param.trim();   // string parameter
-            if (str) ret.push(str);   // string is not empty
-            else ret.push(undefined); // string is empty
-        }
-        // If parsed is not NaN, it is number
-        else
-            ret.push(parsed);   // number parameter
+    try {
+        ret = JSON.parse(jsonString);
+    } catch (e) {
+        throw new Error(`Cannot parse JSON string! which is ${jsonString}`);
     }
 
     return ret;
+
+    // function checkArrayType(arr: any[]) {
+    //     if (!_.isArray(arr)) return false;
+    //     for (let val of arr) {
+    //
+    //     }
+    // }
 }
 
 /**
@@ -35,36 +33,18 @@ export function parseCSV(csvString: string): Array<string | number> {
  * @param values  Array of values
  * @returns       comma-separated string
  */
-export function mkString(values: any): string {
+export function stringifyJSON(obj: any): string {
 
-    // Return empty string if it does not contain a value
-    if (!values) return '';
+    // Return undefined if it does not contain a value
+    if (!obj) return undefined;
 
-    if (typeof values === 'string')
-        return values;
-    if (typeof values === 'number')
-        return values.toString();
+    let str;
 
-    if (_.isArray(values)) {
-        let csvString = '';
-
-        for (let val of values) {
-            if (val === undefined || val === null)
-                csvString += ',';
-            else if (typeof val === 'string')
-                csvString += ',' + val.trim();
-            else if (typeof val === 'number')
-                csvString += ',' + val.toString();
-            else throw new Error('Arguments for mkString() should be string, number, or Array of string & number');
-        }
-
-        // Remove first comma (e.g. if csvString = ',1,two', then '1,two')
-        // If csvString is empty string, then it is still empty string
-        csvString = csvString.slice(1, csvString.length);
-
-        return csvString;
+    try {
+        str = JSON.stringify(obj);
+    } catch (e) {
+        throw new Error(`Cannot stringify JSON! which is ${obj}`);
     }
 
-    // Throw exception if it does not match with any case above
-    throw new Error('Arguments for mkString() should be string, number, or Array of string & number');
+    return str;
 }
