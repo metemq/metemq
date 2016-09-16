@@ -191,8 +191,12 @@ export class Source {
 
     //register metemq special methods
     private registerSpecialMethods() {
+        Meteor.methods({
+            '/metemq/act': act
+        });
+
         this.methods({
-            '_metemq_act': act,
+            // '_metemq_act': act,  // action call from thing is not allowed for now, but maybe in the future...
             '_metemq_pending': pending,
             '_metemq_applied': applied,
             '_metemq_rejected': rejected

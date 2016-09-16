@@ -95,7 +95,8 @@ declare namespace MeteMQ {
         private isCursor(c);
     }
 
-    var Things: Mongo.Collection<Object>;
+    var Things: Mongo.Collection<any>;
+    var ThingsInbox: Mongo.Collection<any>;
 }
 
 declare module "meteor/metemq:metemq" {

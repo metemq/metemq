@@ -1,25 +1,25 @@
 import { ThingsInbox } from 'meteor/metemq:metemq';
 import shortid = require('shortid');
 
-export function act(action, thingId, ...params) {
-    let msgId = shortid.generate();
+export function act(action: string, thingId: string, ...params: any[]): string {
+    const msgId = shortid.generate();
 
-    let obj = {
+    const msg = {
         _id: msgId,
         action: action,
         params: params,
         userId: this.userId || null,
         thingId: thingId,
-        result: [],
+        // result: [],
         state: 'initial'
     }
 
-    ThingsInbox.insert(obj);
+    ThingsInbox.insert(msg);
 
     return msgId;
 }
 
-export function pending(msgId, thingId, progress) {
+export function pending(msgId: string, thingId: string, progress: number): string {
     if (thingId !== this.thingId) {
         return 'reject';
     }
@@ -39,17 +39,19 @@ export function pending(msgId, thingId, progress) {
     return 'done';
 }
 
-export function applied(msgId, thingId, result?) {
+export function applied(msgId: string, thingId: string, result?): string {
     if (thingId !== this.thingId) {
         return 'reject';
     }
 
-    ThingsInbox.update({ _id: msgId }, { $set: { progress: 100, state: 'applied', result: result } });
+    /* TODO: Do something after applied */
+    // ThingsInbox.update({ _id: msgId }, { $set: { progress: 100, state: 'applied', result: result } });
+    ThingsInbox.update({ _id: msgId }, { $set: { progress: 100, state: 'done', result: result } });
 
     return 'done';
 }
 
-export function rejected(msgId, thingId) {
+export function rejected(msgId: string, thingId: string): string {
     if (thingId !== this.thingId) {
         return 'reject';
     }
