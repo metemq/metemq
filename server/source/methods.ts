@@ -44,9 +44,7 @@ export function applied(msgId: string, thingId: string, result?): string {
         return 'reject';
     }
 
-    /* TODO: Do something after applied */
-    // ThingsInbox.update({ _id: msgId }, { $set: { progress: 100, state: 'applied', result: result } });
-    ThingsInbox.update({ _id: msgId }, { $set: { progress: 100, state: 'done', result: result } });
+    ThingsInbox.update({ _id: msgId }, { $set: { progress: 100, state: 'applied', result: result } });
 
     return 'done';
 }
