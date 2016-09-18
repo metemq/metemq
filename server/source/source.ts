@@ -7,7 +7,7 @@ import { Meteor } from 'meteor/meteor';
 import { _ } from 'meteor/underscore';
 // My packages
 import { topicHandler, topicHandlers } from './topics/index';
-import { act, pending, applied, rejected } from './methods';
+import { pending, applied, rejected } from './methods';
 import {
     DEFAULT_SOURCE_OPTIONS,
     SourceOptions
@@ -191,10 +191,6 @@ export class Source {
 
     //register metemq special methods
     private registerSpecialMethods() {
-        Meteor.methods({
-            '/metemq/act': act
-        });
-
         this.methods({
             // '_metemq_act': act,  // action call from thing is not allowed for now, but maybe in the future...
             '_metemq_pending': pending,

@@ -1,3 +1,5 @@
 export { Source } from './source/index';
 
-export { Things, ThingsInbox } from './collections';
+export * from '../api/index';
+
+import '../api/thingsInbox/server/publications';

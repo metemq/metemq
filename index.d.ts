@@ -29,6 +29,8 @@ declare namespace MeteMQ {
         methods(methods: {
             [name: string]: Function;
         }): void;
+        act(action: string, thingId: string, ...args: any[]): void;
+        close(): void;
         send(topic: string, message: number): any;
         send(topic: string, message: string): any;
         getSession(thingId: string): Session;

@@ -1,23 +1,4 @@
 import { ThingsInbox } from 'meteor/metemq:metemq';
-import shortid = require('shortid');
-
-export function act(action: string, thingId: string, ...params: any[]): string {
-    const msgId = shortid.generate();
-
-    const msg = {
-        _id: msgId,
-        action: action,
-        params: params,
-        userId: this.userId || null,
-        thingId: thingId,
-        // result: [],
-        state: 'initial'
-    }
-
-    ThingsInbox.insert(msg);
-
-    return msgId;
-}
 
 export function pending(msgId: string, thingId: string, progress: number): string {
     if (thingId !== this.thingId) {

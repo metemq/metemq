@@ -52,40 +52,13 @@ describe('Special Methods', function() {
             name: '$inbox'
         }
 
-        subscriptionMsg('#', thing, source);
+        subscriptionMsg('', thing, source);
     })
 
     // Close broker after tests
     after(function() {
+        source.close();
         broker.close();
-    });
-
-    describe('Method: _metemq_act', function() {
-        let params = "on,t01,u01,[]";
-
-        before(function() {
-            let obj = {
-                thingId: "t01",
-                method: '_metemq_act',
-                msgId: '11'
-            }
-            methodCall(params, obj, source);
-
-            source.mqtt.once('message', function(topic, message) {
-                msgId = message.toString();
-            })
-        })
-
-        it('should act method is called, message is inserted to Things.inbox collection', function(done) {
-            let doc = ThingsInbox.findOne({ _id: msgId });
-
-            assert.equal('on', doc.action);
-            assert.equal('t01', doc.thingId);
-            assert.equal('u01', doc.userId);
-            assert.equal('initial', doc.state);
-
-            done();
-        });
     });
 
     describe('Method: _metemq_pending', function() {
