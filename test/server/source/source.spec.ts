@@ -31,6 +31,7 @@ describe('class Source', function() {
     // Close broker after tests
     after(function() {
         broker.close();
+        source.close();
     });
 
     describe('#constructor(brokerUrl, options)', function() {

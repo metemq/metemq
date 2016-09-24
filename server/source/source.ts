@@ -7,12 +7,14 @@ import { Meteor } from 'meteor/meteor';
 import { _ } from 'meteor/underscore';
 // My packages
 import { topicHandler, topicHandlers } from './topics/index';
+import { pending, applied, rejected } from './methods';
 import {
     DEFAULT_SOURCE_OPTIONS,
     SourceOptions
 } from './sourceOptions';
 import { Session } from './session';
 import { Publication, PublishHandler } from './publication';
+import { ThingsInbox } from 'meteor/metemq:metemq';
 
 export class Source {
 
@@ -73,6 +75,14 @@ export class Source {
         this.initialize();
 
         this.registerHandlers();
+
+        this.publishSpecial('$inbox', function() {
+            let thingId = this.thingId;
+
+            return ThingsInbox.find({ thingId: thingId, state: 'initial' });
+        }, ['_id', 'action', 'params']);
+
+        this.registerSpecialMethods();
     }
 
     publish(name: string, handler: PublishHandler, fields: string[]) {
@@ -87,7 +97,7 @@ export class Source {
         if (name[0] === '$')
             throw new Error(`Publication name '${name}' cannot starts with $`);
 
-        this.publications[name] = new Publication(name, handler, fields);
+        this.createPublication(name, handler, fields);
     }
 
     methods(methods: { [name: string]: Function }) {
@@ -177,5 +187,25 @@ export class Source {
     private addHandler(topicPattern, handler: topicHandler) {
         this.topic.on(topicPattern,
             (payload, params) => handler(payload, params, this))
+    }
+
+    //register metemq special methods
+    private registerSpecialMethods() {
+        this.methods({
+            // '_metemq_act': act,  // action call from thing is not allowed for now, but maybe in the future...
+            '_metemq_pending': pending,
+            '_metemq_applied': applied,
+            '_metemq_rejected': rejected
+        });
+    }
+
+    //Creation of publication
+    private createPublication(name, handler, fields) {
+        this.publications[name] = new Publication(name, handler, fields);
+    }
+
+    //Special publish creation
+    private publishSpecial(name, handler, fields) {
+        this.createPublication(name, handler, fields);
     }
 }

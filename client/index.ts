@@ -1,7 +1,3 @@
-import { Meteor } from 'meteor/meteor';
+export { Source } from './source';
 
-export class Source {
-    act() {
-        /* TODO */
-    }
-}
+export * from '../api/index';

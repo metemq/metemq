@@ -20,9 +20,12 @@ Npm.depends({
 
 Package.onUse(function(api) {
   api.versionsFrom('1.4.1');
+  api.use('check');
   api.use('underscore@1.0.8');
   api.use('accounts-password'); // For checking password
   api.use('barbatus:typescript@0.4.0');
+  api.use('mdg:validated-method@1.1.0');
+  api.use('aldeed:simple-schema@1.5.3');
 
   api.mainModule('client/index.ts', 'client');
   api.mainModule('server/index.ts', 'server');
@@ -33,7 +36,13 @@ Package.onTest(function(api) {
 
   api.use('barbatus:typescript@0.4.0');
 
-  api.use(['practicalmeteor:mocha', 'practicalmeteor:chai']);
+  api.use([
+    'practicalmeteor:mocha',
+    'practicalmeteor:chai',
+    'hwillson:stub-collections',
+    'johanbrook:publication-collector'
+  ]);
 
-  api.mainModule('test/index.ts');
+  api.mainModule('test/client/index.ts', 'client');
+  api.mainModule('test/server/index.ts', 'server');
 });
