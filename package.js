@@ -1,10 +1,10 @@
 Package.describe({
   name: 'metemq:metemq',
-  version: '0.4.0',
+  version: '0.5.0',
   // Brief, one-line summary of the package.
-  summary: 'MeteMQ',
+  summary: 'Meteorify IoT. Expand your galaxy.',
   // URL to the Git repository containing the source code for this package.
-  git: '',
+  git: 'https://github.com/metemq/metemq',
   // By default, Meteor will default to using README.md for documentation.
   // To avoid submitting documentation, set this field to null.
   documentation: 'README.md'
