@@ -125,23 +125,8 @@ export class Subscription {
         // Collect user-defined fields in order
         for (let field of this.publication.fields)
             arr.push(fields[field]);
-        // Field value type check
-        if (!this.isSimpleArray(arr))
-            throw new Error(`Cursor which is returned by publish ${this.publication.name} should only contain string or number fields`);
         // Convert array to CSV string
         return arr;
-    }
-
-    /**
-     * If input array is an array of string & number, then true, else false
-     */
-    private isSimpleArray(arr): boolean {
-        if (!_.isArray(arr)) return false;
-        for (let val of arr)
-            if (val === undefined) continue;
-            else if (typeof val !== 'string' && typeof val !== 'number')
-                return false;
-        return true;
     }
 
     private isCursor(c) { return c && _.isFunction(c.observeChanges); }

@@ -13,10 +13,10 @@ export function pending(msgId: string, progress: number): string {
     return 'done';
 }
 
-export function applied(msgId: string, ...results): string {
+export function applied(msgId: string, ...result): string {
     if (!isThingMsgOwner(msgId, this.thingId)) return 'reject';
 
-    ThingsInbox.update({ _id: msgId }, { $set: { progress: 100, state: 'applied', result: results } });
+    ThingsInbox.update({ _id: msgId }, { $set: { progress: 100, state: 'applied', result } });
 
     return 'done';
 }
