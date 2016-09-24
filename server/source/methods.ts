@@ -1,41 +1,35 @@
 import { ThingsInbox } from 'meteor/metemq:metemq';
 
-export function pending(msgId: string, thingId: string, progress: number): string {
-    if (thingId !== this.thingId) {
-        return 'reject';
-    }
 
-    if (typeof progress === 'string') {
-        progress = Number(progress);
-    } else if (typeof progress !== 'number') {
-        return 'reject'
-    }
+export function pending(msgId: string, progress: number): string {
+    if (!isThingMsgOwner(msgId, this.thingId)) return 'reject';
 
-    if (progress < 0 || progress >= 100) {
-        return 'reject';
-    }
+    progress = Number(progress);
+
+    if (isNaN(progress) || progress < 0 || progress >= 100) return 'reject';
 
     ThingsInbox.update({ _id: msgId }, { $set: { progress: progress, state: 'pending' } });
 
     return 'done';
 }
 
-export function applied(msgId: string, thingId: string, result?): string {
-    if (thingId !== this.thingId) {
-        return 'reject';
-    }
+export function applied(msgId: string, ...results): string {
+    if (!isThingMsgOwner(msgId, this.thingId)) return 'reject';
 
-    ThingsInbox.update({ _id: msgId }, { $set: { progress: 100, state: 'applied', result: result } });
+    ThingsInbox.update({ _id: msgId }, { $set: { progress: 100, state: 'applied', result: results } });
 
     return 'done';
 }
 
-export function rejected(msgId: string, thingId: string): string {
-    if (thingId !== this.thingId) {
-        return 'reject';
-    }
+export function rejected(msgId: string): string {
+    if (!isThingMsgOwner(msgId, this.thingId)) return 'reject';
 
     ThingsInbox.update({ _id: msgId }, { $set: { state: 'rejected' } });
 
     return 'done';
+}
+
+function isThingMsgOwner(msgId: string, thingId: string): boolean {
+    const msg = ThingsInbox.findOne(msgId);
+    return msg.thingId === thingId;
 }

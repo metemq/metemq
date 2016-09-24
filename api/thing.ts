@@ -1,8 +1,6 @@
 import { insertActionMsg, setActionDone } from './thingsInbox/methods';
 import { ThingsInbox } from 'meteor/metemq:metemq';
 
-console.log(insertActionMsg);
-
 export class Thing {
     _id: string;
     _owner: string;		// userId
