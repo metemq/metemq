@@ -25,7 +25,7 @@ export default function methodCall(payload, params, source: Source) {
     // Configure variables to run method handler
     const methodHandler = source.methodHandlers[method];
     const methodParams = parseJSON(payload);    /* TODO: should check type of methodParams is array*/
-    const context = { thingId: thingId };
+    const context = { thingId };
 
     let result: undefined | string | number | Array<string | number>;
     let error: Error;
@@ -40,6 +40,7 @@ export default function methodCall(payload, params, source: Source) {
     // If there was an exception while running method handler,
     // send METHOD_EXCEPTION to the thing
     if (error) {
+        /* XXX Exception message should be printed on server */
         source.send(`${thingId}/$callack/${msgId}/${CALLACK.METHOD_EXCEPTION}`, error.message);
         return;
     }

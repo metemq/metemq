@@ -159,6 +159,10 @@ export class Source {
         return newSession;
     }
 
+    removeSession(thingId: string) {
+        delete this.sessions[thingId];
+    }
+
     close() {
         this.mqtt.end();
         if (this.broker)

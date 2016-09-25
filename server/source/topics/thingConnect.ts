@@ -14,7 +14,8 @@ export default function thingConnect(payload, params, source: Source) {
     const password: string | undefined = parsed.password;
 
     // If there is already existing session
-    if (source.hasSession(thingId)) { /* TODO */ }
+    if (source.hasSession(thingId))
+        source.removeSession(thingId);
 
     // Check password if there is username & password
     if (username && password) {
