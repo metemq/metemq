@@ -16,7 +16,7 @@ On Linux/macOS, use this line:
 ```bash
 curl https://install.meteor.com/ | sh
 ```
-Add MeteMQ package to yout Meteor project:
+Add MeteMQ package to your Meteor project:
 
 ```bash
 meteor add metemq:metemq
