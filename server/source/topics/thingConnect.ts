@@ -30,8 +30,16 @@ export default function thingConnect(payload, params, source: Source) {
      */
 
     // If there is no document of the thing, it's new thing!
-    if (Things.find({ _id: thingId }).count() === 0)
-        Things.insert({ _id: thingId });
+    if (Things.find({ _id: thingId }).count() === 0) {
+        let userId = null;
+        if (username)
+            userId = Meteor.users.findOne({ username: username })._id;
+
+        Things.insert({
+            _id: thingId,
+            _owner: userId
+        });
+    }
 
     // Create session for the thing
     source.createSession(thingId);

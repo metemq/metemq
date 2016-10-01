@@ -10,6 +10,10 @@ export class Thing {
         _.extend(this, thingDocument);
     }
 
+    get owner(): string {
+        return this._owner;
+    }
+
     act(action: string, ...args: any[]) {
         let callback = function(err, result) { }
 
