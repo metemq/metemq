@@ -1,5 +1,12 @@
 # CHANGE LOG
 
+## 2016-09-24 release 0.6.0
+
+### New Features
+- Owner field added to Thing
+
+
+
 ## 2016-09-24 release 0.5.0
 
 ### New Features
