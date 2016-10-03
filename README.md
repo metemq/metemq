@@ -1,5 +1,7 @@
 ![MeteMQ](https://raw.githubusercontent.com/metemq/metemq/master/METEMQ.png)
 
+[![Youtube: MeteMQ - JavaScript IoT App Platform](http://img.youtube.com/vi/RJXQkWGtvxY/0.jpg)](http://www.youtube.com/watch?v=RJXQkWGtvxY)
+
 # MeteMQ
 MeteMQ is an IoT app platform based on [Meteor](https://www.meteor.com/), and [MQTT](http://mqtt.org/). It's the easiest way to build an IoT application with JavaScript.
 
