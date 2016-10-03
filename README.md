@@ -1,5 +1,6 @@
 ![MeteMQ](https://raw.githubusercontent.com/metemq/metemq/master/METEMQ.png)
 
+# Video on Youtube
 [![Youtube: MeteMQ - JavaScript IoT App Platform](http://img.youtube.com/vi/RJXQkWGtvxY/0.jpg)](http://www.youtube.com/watch?v=RJXQkWGtvxY)
 
 # MeteMQ
