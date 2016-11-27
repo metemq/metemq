@@ -1,6 +1,6 @@
 Package.describe({
   name: 'metemq:metemq',
-  version: '0.6.1',
+  version: '0.6.2',
   // Brief, one-line summary of the package.
   summary: 'Meteorify IoT. Expand your galaxy.',
   // URL to the Git repository containing the source code for this package.
@@ -15,7 +15,7 @@ Npm.depends({
   'mqtt-emitter': '1.2.4',
   'mosca': '2.1.0',    // For testing
   'portfinder': '1.0.3',
-  'metemq-broker': '0.0.1',
+  'metemq-broker': '0.0.2',
   'winston': '2.3.0'
 });
 
