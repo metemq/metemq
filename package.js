@@ -1,6 +1,6 @@
 Package.describe({
   name: 'metemq:metemq',
-  version: '0.6.0',
+  version: '0.6.1',
   // Brief, one-line summary of the package.
   summary: 'Meteorify IoT. Expand your galaxy.',
   // URL to the Git repository containing the source code for this package.

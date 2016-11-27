@@ -1,5 +1,12 @@
 # CHANGE LOG
 
+## 2016-11-27 release 0.6.1
+
+### New Features
+- Logger added
+
+
+
 ## 2016-09-24 release 0.6.0
 
 ### New Features
