@@ -1,10 +1,10 @@
 declare module "mqtt-emitter" {
-    import EventEmitter = NodeJS.EventEmitter;
+  import EventEmitter = NodeJS.EventEmitter;
 
-    class MqttEmitter {
-        on(topicPattern: string, listener: (payload, params) => void): void;
-        emit(topic: string, payload: any);
-    }
+  class MqttEmitter {
+    on(topicPattern: string, listener: (payload, params) => void): void;
+    emit(topic: string, payload: any);
+  }
 
-    export = MqttEmitter;
+  export = MqttEmitter;
 }

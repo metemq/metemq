@@ -5,6 +5,10 @@
         "moduleResolution": "node",
         "noEmit": true
     },
+    "formatCodeOptions": {
+        "indentSize": 2,
+        "tabSize": 2
+    },
     "filesGlob": [
         "**/*.ts"
     ],

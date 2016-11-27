@@ -1,38 +1,38 @@
 import * as mqtt from 'mqtt';
 
 export function createThing(port: number, done?: Function): MockThing {
-    if (typeof done !== 'function')
-        done = () => { }
+  if (typeof done !== 'function')
+    done = () => { }
 
-    let thing = new MockThing(port);
+  let thing = new MockThing(port);
 
-    thing.client.once('connect', () => done());
+  thing.client.once('connect', () => done());
 
-    return thing;
+  return thing;
 }
 
 export class MockThing {
-    thingId: string;
-    client: mqtt.Client;
+  thingId: string;
+  client: mqtt.Client;
 
-    constructor(port) {
-        this.thingId = generateThingId();
-        this.client = mqtt.connect(`mqtt://localhost:${port}`,
-            { clientId: this.thingId });
-    }
+  constructor(port) {
+    this.thingId = generateThingId();
+    this.client = mqtt.connect(`mqtt://localhost:${port}`,
+      { clientId: this.thingId });
+  }
 
-    subscribe(name: string, cb?: Function) {
-        if (typeof cb !== 'function')
-            cb = () => { };
+  subscribe(name: string, cb?: Function) {
+    if (typeof cb !== 'function')
+      cb = () => { };
 
-        this.client.subscribe(`${this.thingId}/${name}/#`, () => {
-            this.client.publish(`${this.thingId}/$sub/${name}`, '', {}, () => cb());
-        });
-    }
+    this.client.subscribe(`${this.thingId}/${name}/#`, () => {
+      this.client.publish(`${this.thingId}/$sub/${name}`, '', {}, () => cb());
+    });
+  }
 }
 
 function generateThingId(): string {
-    return 't' + i++;
+  return 't' + i++;
 }
 
 let i = 0;

@@ -11,123 +11,123 @@ import { SUBACK } from '../ddmq/ackCodes';
  */
 export class Subscription {
 
+  /**
+   * Access inside publish handler.
+   */
+  thingId: string;
+  queryHandles: Meteor.LiveQueryHandle[] = [];
+
+  constructor(
+    private name: string,
+    private session: Session,
+    private publication: Publication,
+    private params: Array<string | number>
+  ) {
+    this.thingId = session.getThingId();
+  }
+
+  start() {
+    let cursor: Mongo.Cursor<any>;
     /**
-     * Access inside publish handler.
+     * Run handler and check return value of it.
      */
-    thingId: string;
-    queryHandles: Meteor.LiveQueryHandle[] = [];
+    try {
+      /**
+       * Run handler.
+       * Inside of handler function, 'this' is subscription object,
+       * and arguments are parameters that the thing sent.
+       * Since 'this' is subscription, users can use 'this.thingId' to
+       * enrich their logic.
+       */
+      cursor = this.publication.handler.apply(this, this.params);
 
-    constructor(
-        private name: string,
-        private session: Session,
-        private publication: Publication,
-        private params: Array<string | number>
-    ) {
-        this.thingId = session.getThingId();
+      if (!this.isCursor(cursor))
+        throw new Error(`Handler of publication '${this.publication.name}' should return array of Cursors`);
+    } catch (e) {
+      this.error(e);
+      return;
     }
 
-    start() {
-        let cursor: Mongo.Cursor<any>;
-        /**
-         * Run handler and check return value of it.
-         */
-        try {
-            /**
-             * Run handler.
-             * Inside of handler function, 'this' is subscription object,
-             * and arguments are parameters that the thing sent.
-             * Since 'this' is subscription, users can use 'this.thingId' to
-             * enrich their logic.
-             */
-            cursor = this.publication.handler.apply(this, this.params);
+    // Send $suback message to the thing
+    this.session.send(`$suback/${this.name}`, SUBACK.OK);
 
-            if (!this.isCursor(cursor))
-                throw new Error(`Handler of publication '${this.publication.name}' should return array of Cursors`);
-        } catch (e) {
-            this.error(e);
-            return;
-        }
+    // Track documents of cursor
+    let queryHandle = cursor.observeChanges({
+      added: (id, fields) => this.added(_.extend(fields, { _id: id })),
+      changed: (id, fields) => this.changed(fields),  // _id is not a changed field
+      removed: (id) => this.removed(id),
+    });
 
-        // Send $suback message to the thing
-        this.session.send(`$suback/${this.name}`, SUBACK.OK);
-
-        // Track documents of cursor
-        let queryHandle = cursor.observeChanges({
-            added: (id, fields) => this.added(_.extend(fields, { _id: id })),
-            changed: (id, fields) => this.changed(fields),  // _id is not a changed field
-            removed: (id) => this.removed(id),
-        });
-
-        this.queryHandles.push(queryHandle);
-    }
+    this.queryHandles.push(queryHandle);
+  }
 
 
-    stop() {
-        // The query will run forever unless you call stop()
-        for (let queryHandle of this.queryHandles)
-            queryHandle.stop();
-        // Remove all stopped query handles from array
-        this.queryHandles = null;
-    }
+  stop() {
+    // The query will run forever unless you call stop()
+    for (let queryHandle of this.queryHandles)
+      queryHandle.stop();
+    // Remove all stopped query handles from array
+    this.queryHandles = null;
+  }
 
-    send(topic: string, payload?: any) {
-        this.session.send(`${this.name}/${topic}`, payload);
-    }
+  send(topic: string, payload?: any) {
+    this.session.send(`${this.name}/${topic}`, payload);
+  }
 
-    added(fields: Object) {
-        // Convert fields to CSV string
-        let csvString = this.collectFieldsInOrder(fields);
-        // If length of CSV string is smaller than length of user-defined fields,
-        // then csvString only contrains comma
-        // That means we don't have to send message to the thing
-        if (csvString.length < this.publication.fields.length) return;
-        // Send $added message to the thing
-        this.send('$added', csvString);
-    }
+  added(fields: Object) {
+    // Convert fields to CSV string
+    let csvString = this.collectFieldsInOrder(fields);
+    // If length of CSV string is smaller than length of user-defined fields,
+    // then csvString only contrains comma
+    // That means we don't have to send message to the thing
+    if (csvString.length < this.publication.fields.length) return;
+    // Send $added message to the thing
+    this.send('$added', csvString);
+  }
 
-    changed(fields: Object) {
-        // Convert fields to CSV string
-        let fieldValueArray = this.collectFieldsInOrder(fields);
-        // If length of CSV string is smaller than length of user-defined fields,
-        // then csvString only contrains comma
-        // That means we don't have to send message to the thing
-        if (this.isAllNull(fieldValueArray)) return;
-        // Send $changed message to the thing
-        this.send('$changed', stringifyJSON(fieldValueArray));
-    }
+  changed(fields: Object) {
+    // Convert fields to CSV string
+    let fieldValueArray = this.collectFieldsInOrder(fields);
+    // If length of CSV string is smaller than length of user-defined fields,
+    // then csvString only contrains comma
+    // That means we don't have to send message to the thing
+    if (this.isAllNull(fieldValueArray)) return;
+    // Send $changed message to the thing
+    this.send('$changed', stringifyJSON(fieldValueArray));
+  }
 
-    removed(id: string) {
-        this.send('$removed', id);
-    }
+  removed(id: string) {
+    this.send('$removed', id);
+  }
 
-    error(e: Error) {
-        // Send $suback message with INTERNAL_SERVER_ERROR code
-        this.session.send(`$suback/${this.name}`, SUBACK.INTERNAL_SERVER_ERROR);
-        // Stop observing cursors
-        this.stop();
-        // Unregister this subscription from session of the thing
-        delete this.session.subscriptions[this.name];
-        // Print to console
-        console.error(`MeteMQ publication ${this.name} internal error`);
-        console.trace(e);
-    }
+  error(e: Error) {
+    // Send $suback message with INTERNAL_SERVER_ERROR code
+    this.session.send(`$suback/${this.name}`, SUBACK.INTERNAL_SERVER_ERROR);
+    // Stop observing cursors
+    this.stop();
+    // Unregister this subscription from session of the thing
+    delete this.session.subscriptions[this.name];
+    // Print to console
+    console.error(`MeteMQ publication ${this.name} internal error`);
+    console.trace(e);
+  }
 
-    getName(): string { return this.name; }
+  getName(): string { return this.name; }
 
-    private isAllNull(arr: any[]): boolean {
-        for (let value of arr)
-            if (value) return false;
-        return true;
-    }
+  private isAllNull(arr: any[]): boolean {
+    for (let value of arr)
+      if (value) return false;
+    return true;
+  }
 
-    private collectFieldsInOrder(fields: Object): any[] {
-        let arr = [];
-        // Collect user-defined fields in order
-        for (let field of this.publication.fields)
-            arr.push(fields[field]);
-        // Convert array to CSV string
-        return arr;
-    }
+  private collectFieldsInOrder(fields: Object): any[] {
+    let arr = [];
+    // Collect user-defined fields in order
+    for (let field of this.publication.fields)
+      arr.push(fields[field]);
+    // Convert array to CSV string
+    return arr;
+  }
 
-    private isCursor(c) { return c && _.isFunction(c.observeChanges); }
+  private isCursor(c) { return c && _.isFunction(c.observeChanges); }
 }

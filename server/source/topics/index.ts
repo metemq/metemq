@@ -16,9 +16,9 @@ export type topicHandler = (payload, params?, source?: Source) => void;
 
 // Add topic handlers what you want!
 export const topicHandlers: { [topic: string]: topicHandler } = {
-    '+thingId/$sub/+name': subscriptionMsg,
-    '+thingId/$disconnect': thingDisconnect,
-    '+thingId/$call/+method/+msgId': methodCall,
-    '+thingId/$bind/+field': dataBinding,
-    '+thingId/$connect/+msgId': thingConnect
+  '+thingId/$sub/+name': subscriptionMsg,
+  '+thingId/$disconnect': thingDisconnect,
+  '+thingId/$call/+method/+msgId': methodCall,
+  '+thingId/$bind/+field': dataBinding,
+  '+thingId/$connect/+msgId': thingConnect
 };
