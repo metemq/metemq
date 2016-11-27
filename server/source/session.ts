@@ -1,6 +1,9 @@
 import { _ } from 'meteor/underscore';
 import { Source } from './source';
 import { Subscription } from './subscription';
+import { getLogger } from '../util/logger';
+
+const logger = getLogger('Session');
 
 /**
  * Represents session of a thing.
@@ -36,6 +39,13 @@ export class Session {
 
   hasSubscription(name: string): boolean {
     return _.has(this.subscriptions, name);
+  }
+
+  close() {
+    for (let sub of _.values(this.subscriptions))
+      sub.stop();
+
+    logger.info('Session for %s closed', this.thingId);
   }
 
   getThingId(): string { return this.thingId; }

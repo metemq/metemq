@@ -165,6 +165,7 @@ export class Source {
   }
 
   removeSession(thingId: string) {
+    this.sessions[thingId].close();
     delete this.sessions[thingId];
     logger.info('Session for %s removed', thingId);
   }
