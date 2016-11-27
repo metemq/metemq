@@ -15,6 +15,9 @@ import {
 import { Session } from './session';
 import { Publication, PublishHandler } from './publication';
 import { ThingsInbox } from 'meteor/metemq:metemq';
+import { getLogger } from '../util/logger';
+
+const logger = getLogger('Source');
 
 export class Source {
 
@@ -127,6 +130,7 @@ export class Source {
       this.publisher = setInterval(() => {
         let obj = this.queue.shift();
 
+        logger.info('Send %j', obj);
         this.mqtt.publish(obj.topic, obj.message);
 
         if (this.queue.length === 0) {
@@ -156,11 +160,13 @@ export class Source {
     let newSession = new Session(thingId, this);
     // Register session
     this.sessions[thingId] = newSession;
+    logger.info('A new session for %s created', thingId);
     return newSession;
   }
 
   removeSession(thingId: string) {
     delete this.sessions[thingId];
+    logger.info('Session for %s removed', thingId);
   }
 
   close() {

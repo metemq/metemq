@@ -15,7 +15,8 @@ Npm.depends({
   'mqtt-emitter': '1.2.4',
   'mosca': '2.1.0',    // For testing
   'portfinder': '1.0.3',
-  'metemq-broker': '0.0.1'
+  'metemq-broker': '0.0.1',
+  'winston': '2.3.0'
 });
 
 Package.onUse(function(api) {

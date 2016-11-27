@@ -43,6 +43,7 @@
         "server/source/topics/subscriptionMsg.ts",
         "server/source/topics/thingConnect.ts",
         "server/source/topics/thingDisconnect.ts",
+        "server/util/logger.ts",
         "test/api/index.ts",
         "test/api/thing.spec.ts",
         "test/api/things/things.test.ts",
@@ -70,6 +71,7 @@
         "typings/globals/mqtt/index.d.ts",
         "typings/globals/node/index.d.ts",
         "typings/globals/underscore/index.d.ts",
+        "typings/globals/winston/index.d.ts",
         "typings/index.d.ts",
         "typings/manual_typings/mqtt-emitter/index.d.ts",
         "typings/manual_typings/shortid/index.d.ts"

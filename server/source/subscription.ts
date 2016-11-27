@@ -4,6 +4,10 @@ import { Session } from './session';
 import { Publication } from './publication';
 import { stringifyJSON } from '../ddmq/util';
 import { SUBACK } from '../ddmq/ackCodes';
+import { getLogger } from '../util/logger';
+
+const logger = getLogger('Subscription');
+
 /**
  * Represents one thing session's one subscription.
  * It is responsible for tracking updates of subscribed documents,
@@ -68,6 +72,7 @@ export class Subscription {
       queryHandle.stop();
     // Remove all stopped query handles from array
     this.queryHandles = null;
+    logger.info('Subscription stopped %j', { thingId: this.thingId, name: this.name });
   }
 
   send(topic: string, payload?: any) {
