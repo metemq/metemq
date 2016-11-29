@@ -70,17 +70,25 @@ describe('Topic [+thingId/$disconnect]', function() {
       subscriptionMsg('', { thingId: thing2.thingId, name: 'aPub' }, source);
     });
 
-    it('should only remove the disconnected thing from sessions', function() {
-      thingDisconnect('', { thingId: thing2.thingId }, source);
+    // it('should only remove the disconnected thing from sessions', function() {
+    //   thingDisconnect('', { thingId: thing2.thingId }, source);
+    //
+    //   assert.notProperty(source.sessions, thing2.thingId);
+    //   assert.property(source.sessions, thing1.thingId);
+    // });
+    //
+    // it('should empty sessions, when everything is disconnected', function() {
+    //   thingDisconnect('', { thingId: thing1.thingId }, source);
+    //
+    //   assert.lengthOf(_.values(source.sessions), 0);
+    // });
 
-      assert.notProperty(source.sessions, thing2.thingId);
-      assert.property(source.sessions, thing1.thingId);
-    });
-
-    it('should empty sessions, when everything is disconnected', function() {
-      thingDisconnect('', { thingId: thing1.thingId }, source);
-
-      assert.lengthOf(_.values(source.sessions), 0);
-    });
+    /**
+    * TODO:
+    * Currently, do nothing when a thing disconnected because of session issue.
+    * Mosca fires 'disconnected' event and then 'connected' when the thing is re-connected,
+    * but message receiving order at server is not guaranteed.
+    * So, just do nothing until we find solution.
+    */
   });
 });
