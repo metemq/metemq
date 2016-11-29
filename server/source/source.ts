@@ -15,7 +15,7 @@ import {
 import { Session } from './session';
 import { Publication, PublishHandler } from './publication';
 import { ThingsInbox } from 'meteor/metemq:metemq';
-import { getLogger } from '../util/logger';
+import { getLogger, setLevel } from '../util/logger';
 
 const logger = getLogger('Source');
 
@@ -53,6 +53,9 @@ export class Source {
 
   constructor(options?: SourceOptions) {
     options = options || {};
+
+    // Set log level
+    setLevel(options.logLevel);
 
     // Set broker URL
     let brokerUrl = options.brokerUrl;
