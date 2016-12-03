@@ -26,7 +26,7 @@ export default function dataBinding(payload: string, params, source: Source) {
   const value = parseValue(payload);
 
   // Set update document
-  let doc = { $set: {} };
+  let doc = { $set: { updatedAt: new Date() } };
   doc.$set[field] = value;
 
   // Update
