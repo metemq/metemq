@@ -2,16 +2,22 @@ import { _ } from 'meteor/underscore';
 import { Source } from '../source';
 import { parseJSON, stringifyJSON } from '../../ddmq/util';
 import { CALLACK } from '../../ddmq/ackCodes';
+import { getLogger } from '../../util/logger';
+
+const logger = getLogger('$call');
 
 export default function methodCall(payload, params, source: Source) {
   const thingId: string = params.thingId;
   const method: string = params.method;
   const msgId: string = params.msgId;
 
+  logger.info('%s calls %s', thingId, method);
+
   //Check the session is existed
   if (!source.hasSession(thingId)) {
     // Send $callack message with NO_SUCH_SESSION error code
     source.send(`${thingId}/$callack/${msgId}/${CALLACK.SESSION_NOT_FOUND}`, '');
+    logger.warn('%s called %s without a session', thingId, method);
     return;
   }
 
@@ -19,6 +25,7 @@ export default function methodCall(payload, params, source: Source) {
   if (!_.has(source.methodHandlers, method)) {
     // Send $callack message with NO_SUCH_METHOD error code
     source.send(`${thingId}/$callack/${msgId}/${CALLACK.NO_SUCH_METHOD}`, '');
+    logger.warn('%s called undefined method: %s', thingId, method)
     return;
   }
 
@@ -29,6 +36,8 @@ export default function methodCall(payload, params, source: Source) {
 
   let result: undefined | string | number | Array<string | number>;
   let error: Error;
+
+  logger.info('%s runs method %s with params: %j', thingId, method, methodParams);
 
   try {
     // Run method handler in context of the thing
@@ -42,6 +51,7 @@ export default function methodCall(payload, params, source: Source) {
   if (error) {
     /* XXX Exception message should be printed on server */
     source.send(`${thingId}/$callack/${msgId}/${CALLACK.METHOD_EXCEPTION}`, error.message);
+    logger.warn('Method %s exited with exception: %s', method, error.message)
     return;
   }
 
@@ -54,6 +64,7 @@ export default function methodCall(payload, params, source: Source) {
 
   // Send $callack message with return values of the method
   source.send(`${thingId}/$callack/${msgId}/${CALLACK.OK}`, csvResult);
+  logger.info('%s successfully called %s with %j', thingId, method, methodParams);
 }
 
 function resultTypeCheck(result): boolean {
