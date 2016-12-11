@@ -26,3 +26,10 @@ export const CALLACK = {
    WRONG_PASSWORD:    1,
    NO_SUCH_USER:      2
  };
+
+ /*****************************
+  * $bindack CODES
+  *****************************/
+  export const BINDACK = {
+    OK: 0
+  };

@@ -3,6 +3,7 @@ import { Source } from '../source';
 import { Things } from 'meteor/metemq:metemq';
 import { parseJSON } from '../../ddmq/util';
 import { getLogger } from '../../util/logger';
+import { BINDACK } from '../../ddmq/ackCodes';
 
 const logger = getLogger('$bind');
 
@@ -32,6 +33,9 @@ export default function dataBinding(payload: string, params, source: Source) {
   // Update
   Things.update({ _id: thingId }, doc);
   logger.info('%s updated %j', thingId, doc.$set);
+
+  // Send $bindack message
+  source.send(`${thingId}/$bindack/${field}`, BINDACK.OK);
 }
 
 function parseValue(payload: string): number | string | Array<number | string> {
