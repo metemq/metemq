@@ -24,7 +24,8 @@ export const CALLACK = {
  export const CONNACK = {
    OK:                0,
    WRONG_PASSWORD:    1,
-   NO_SUCH_USER:      2
+   NO_SUCH_USER:      2,
+   REFUSED:           3
  };
 
  /*****************************

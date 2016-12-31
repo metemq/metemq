@@ -34,9 +34,9 @@ export default function thingConnect(payload, params, source: Source) {
     }
   }
 
-  /* TODO: isAllowed? If return value of user-defined allow function is false,
-   * Stop here and send $connack false.
-   */
+  // Run user-defined validator registered via allow method
+  if (!source.validate('connect', thingId, username))
+    return sendConnack(CONNACK.REFUSED);
 
   // If there is no document of the thing, it's new thing!
   if (Things.find({ _id: thingId }).count() === 0) {

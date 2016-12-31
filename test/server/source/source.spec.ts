@@ -86,4 +86,17 @@ describe('class Source', function() {
       assert.property(source.methodHandlers, 'myMethod');
     });
   });
+
+  describe('#allow(ops)', function() {
+    it('should register validator', function() {
+      source.allow({
+        connect(thingId) {
+          return thingId && thingId.length > 1;
+        }
+      });
+
+      assert.isTrue(source.validate('connect', 'valid_thing'));
+      assert.isFalse(source.validate('connect', 'V'));
+    });
+  });
 });

@@ -1,5 +1,12 @@
 # CHANGE LOG
 
+## 2016-12-31 release 0.7.0
+
+### New Features
+- Source#allow method added
+
+
+
 ## 2016-11-27 release 0.6.1
 
 ### New Features

@@ -127,5 +127,28 @@ describe('Topic [+thingId/$connect/+msgId]', function() {
       };
       thingConnect(payload, params, source);
     });
+
+    it('should only allow things passed validator which is registered via allow()', function(done) {
+      // Deny things which has short ID
+      source.allow({
+        connect(thingId, username) {
+          return thingId && thingId.length > 1;
+        }
+      });
+
+      source.mqtt.once('message', function(topic, message) {
+        let payload = message.toString();
+        assert.equal(topic, 'V/$connack/1212');
+        assert.equal(payload, CONNACK.REFUSED);
+        done();
+      });
+
+      const payload = '{}';
+      const params = {
+        thingId: 'V',
+        msgId: '1212'
+      };
+      thingConnect(payload, params, source);
+    });
   });
 });

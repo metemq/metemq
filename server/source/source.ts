@@ -24,6 +24,7 @@ export class Source {
   private topic = new MqttEmitter();
   private publisher = null;
   private queue = new Array();
+  private validators: { [op: string]: Function[] } = { 'connect': [] };
 
   /**
    * MQTT socket
@@ -117,6 +118,31 @@ export class Source {
 
       this.methodHandlers[method] = handler;
     }
+  }
+
+  allow(ops: { [op: string]: (...args) => boolean }) {
+    const VALID_OPS = ['connect'];
+
+    _.each(_.pairs(ops), (pair) => {
+      const [op, validator] = pair;
+
+      // type checks
+      if (!_.contains(VALID_OPS, op))
+        throw new Error(`Invalid key: ${op}`);
+      if (!_.isFunction(validator))
+        throw new Error(`allow value for ${op} should be a function not ${typeof validator}`);
+
+      this.addValidator(op, validator);
+    });
+  }
+
+  private addValidator(op: string, validator: (...args) => boolean) {
+    this.validators[op].push(validator);
+  }
+
+  validate(op: string, ...args): boolean {
+    const opValidators = this.validators[op];
+    return _.every(opValidators, (validator) => validator(...args));
   }
 
   send(topic: string, message?: any) {
